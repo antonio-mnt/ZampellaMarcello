@@ -1,26 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-
-<BorderPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.camminoAutobus.FXMLController">
+<BorderPane prefHeight="440.0" prefWidth="559.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.camminoAutobus.FXMLController">
+   <top>
+      <Label text="CERCA VIAGGIO AMAT" BorderPane.alignment="CENTER" />
+   </top>
    <center>
-      <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="325.0" prefWidth="376.0" BorderPane.alignment="CENTER">
          <children>
-              <Button fx:id="button" onAction="#handleButtonAction" text="Click Me!" />
-              <Label fx:id="label" minHeight="16" minWidth="69">
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin>
-            </Label>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label text="INSERISCI I CODICI LOCALI" />
+                  <ComboBox fx:id="cmbPartenza" prefWidth="150.0" promptText="Codice Locale Partenza" />
+                  <ComboBox fx:id="cmbArrivo" prefWidth="150.0" promptText="Codice Locale Arrivo" />
+               </children>
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label prefHeight="17.0" prefWidth="104.0" text="OPPURE CERCALI" />
+                  <Button mnemonicParsing="false" onAction="#doRicercaCodiciLocali" text="PREMI QUI" />
+               </children>
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label text="INSERISCI ORARIO:" />
+                  <TextField fx:id="txtOrario" promptText="HH:MM" />
+                  <RadioButton fx:id="radioPartenza" mnemonicParsing="false" selected="true" text="PARTENZA">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="orario" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="radioArrivo" mnemonicParsing="false" text="ARRIVO" toggleGroup="$orario" />
+               </children>
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label text="N° MASSIMO AUTOBUS" />
+                  <TextField fx:id="txtNumeroMassimo" promptText="inserisci..." />
+               </children>
+            </HBox>
+            <Button fx:id="btnPercorso" mnemonicParsing="false" onAction="#doCalcolaPercorso" text="CALCOLA PERCORSO" />
          </children>
-         <padding>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-         </padding>
-      </HBox>
+      </VBox>
    </center>
+   <bottom>
+      <TextArea fx:id="txtResult" editable="false" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+   </bottom>
 </BorderPane>

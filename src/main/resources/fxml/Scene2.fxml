@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.camminoAutobus.CodiciLocaliController">
+   <center>
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label text="SCEGLI LA VIA DI PARTENZA" />
+                  <TextField fx:id="txtPartenza" promptText="inserisci parola chiave" />
+                  <Button mnemonicParsing="false" onAction="#doCercaPartenza" text="RICERCA" />
+                  <ComboBox fx:id="cmbPartenza" prefWidth="150.0" promptText="Via di partenza" />
+               </children>
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label text="SCEGLI LA VIA DI ARRIVO" />
+                  <TextField fx:id="txtArrivo" promptText="inserisci parola chiave" />
+                  <Button mnemonicParsing="false" onAction="#doCercaArrivo" text="RICERCA" />
+                  <ComboBox fx:id="cmbArrivo" prefWidth="150.0" promptText="Via di arrivo" />
+               </children>
+            </HBox>
+            <Button mnemonicParsing="false" onAction="#doInserisciDati" text="OK!" />
+         </children>
+      </VBox>
+   </center>
+   <top>
+      <Label text="CERCA CODICI LOCALI" BorderPane.alignment="CENTER" />
+   </top>
+   <bottom>
+      <TextArea fx:id="txtResult" editable="false" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+   </bottom>
+</BorderPane>
