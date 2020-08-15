@@ -4,10 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import it.polito.tdp.camminoAutobus.model.Collegamento;
+import it.polito.tdp.camminoAutobus.model.FermataAutobus;
 
 
 public class CorsaDao {
@@ -61,11 +64,11 @@ public class CorsaDao {
 		}
 	}
 
-	public List<String> listAllIdentificativi() {
-		String sql = "SELECT DISTINCT oa.identificativo " + 
+	public List<Integer> listAllIdCorsa() {
+		String sql = "SELECT DISTINCT oa.IdCors " + 
 				"FROM orari_amat oa " + 
-				"ORDER BY oa.identificativo ";
-		List<String> result = new ArrayList<>();
+				"ORDER BY oa.IdCors ";
+		List<Integer> result = new ArrayList<>();
 		Connection conn = DBConnect.getConnection();
 
 		try {
@@ -73,7 +76,7 @@ public class CorsaDao {
 			ResultSet res = st.executeQuery();
 
 			while (res.next()) {
-				result.add(res.getString("identificativo"));
+				result.add(res.getInt("IdCors"));
 			}
 
 			conn.close();
@@ -102,6 +105,36 @@ public class CorsaDao {
 			while (res.next()) {
 				Collegamento coll=new Collegamento(res.getString("Desc_stazione"),res.getInt("CodiceLocale"));
 				result.add(coll);
+			}
+
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public List<FermataAutobus> getAllFermateByIdentificativo(int idCorsa, String orario) {
+		String sql = "SELECT oa.identificativo,oa.numeroFermata,oa.CodiceLocale,oa.Desc_stazione,oa.tempoPassato " + 
+				"FROM orari_amat oa " + 
+				"WHERE oa.IdCors=? AND oa.tempoPassato>=? " + 
+				"ORDER BY oa.numeroFermata ";
+		List<FermataAutobus> result = new ArrayList<>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, idCorsa);
+			st.setTime(2, Time.valueOf(orario+":00"));
+			ResultSet res = st.executeQuery();
+
+			while (res.next()) {
+				FermataAutobus fermata= new FermataAutobus(res.getString("identificativo"),res.getInt("numeroFermata"),
+						 res.getInt("CodiceLocale"),res.getString("Desc_stazione"),res.getTime("tempoPassato").toLocalTime());
+				result.add(fermata);
 			}
 
 			conn.close();
