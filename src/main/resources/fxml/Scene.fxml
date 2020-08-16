@@ -3,6 +3,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -10,13 +11,14 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
 
-<BorderPane prefHeight="440.0" prefWidth="559.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.camminoAutobus.FXMLController">
+<BorderPane prefHeight="475.0" prefWidth="612.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.camminoAutobus.FXMLController">
    <top>
       <Label text="CERCA VIAGGIO AMAT" BorderPane.alignment="CENTER" />
    </top>
    <center>
-      <VBox prefHeight="325.0" prefWidth="376.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="355.0" prefWidth="612.0" BorderPane.alignment="CENTER">
          <children>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
@@ -49,7 +51,31 @@
                   <TextField fx:id="txtNumeroMassimo" promptText="inserisci..." />
                </children>
             </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label text="SCEGLI TIPOLOGIA" />
+                  <RadioButton mnemonicParsing="false" selected="true" text="ESTIVO">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="stagione" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton mnemonicParsing="false" text="INVERNALE" toggleGroup="$stagione" />
+                  <Line endX="100.0" startX="100.75735473632812" startY="26.292892456054688" />
+                  <RadioButton mnemonicParsing="false" selected="true" text="FERIALE">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="settimana" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton mnemonicParsing="false" text="FESTIVO" toggleGroup="$settimana" />
+               </children>
+            </HBox>
             <Button fx:id="btnPercorso" mnemonicParsing="false" onAction="#doCalcolaPercorso" text="CALCOLA PERCORSO" />
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label text="BARRA DI PROGRESSIONE" />
+                  <ProgressBar fx:id="progressBar" prefHeight="18.0" prefWidth="200.0" progress="0.0" />
+               </children>
+            </HBox>
          </children>
       </VBox>
    </center>

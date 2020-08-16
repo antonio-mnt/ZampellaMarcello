@@ -1,5 +1,7 @@
 package it.polito.tdp.camminoAutobus;
 
+import java.util.List;
+
 import it.polito.tdp.camminoAutobus.model.Collegamento;
 import it.polito.tdp.camminoAutobus.model.Model;
 import javafx.event.ActionEvent;
@@ -48,7 +50,15 @@ public class CodiciLocaliController {
     		return;
     	}
     	this.cmbArrivo.getItems().clear();
-    	this.cmbArrivo.getItems().addAll(model.cercaCodice(this.txtArrivo.getText()));
+    	List<Collegamento> collegamenti=model.cercaCodice(this.txtArrivo.getText());
+    	if(collegamenti.size()==0) {
+    		this.txtResult.setStyle("-fx-text-inner-color: red;");
+    		this.txtResult.setText("Nessun risultato trovato per la ricerca effettuata");
+    		return;
+    	}
+    	this.cmbArrivo.setDisable(false);
+    	this.cmbArrivo.getItems().addAll(collegamenti);
+    	this.txtResult.clear();
     	
 
     }
@@ -60,9 +70,16 @@ public class CodiciLocaliController {
     		this.txtResult.setText("INSERIRE UN VALORE DI PARTENZA");
     		return;
     	}
-    	System.out.println(this.txtPartenza.getText());
     	this.cmbPartenza.getItems().clear();
-    	this.cmbPartenza.getItems().addAll(model.cercaCodice(this.txtPartenza.getText()));
+    	List<Collegamento> collegamenti=model.cercaCodice(this.txtPartenza.getText());
+    	if(collegamenti.size()==0) {
+    		this.txtResult.setStyle("-fx-text-inner-color: red;");
+    		this.txtResult.setText("Nessun risultato trovato per la ricerca effettuata");
+    		return;
+    	}
+		this.cmbPartenza.setDisable(false);
+    	this.cmbPartenza.getItems().addAll(collegamenti);
+    	this.txtResult.clear();
 
     }
     
@@ -85,6 +102,8 @@ public class CodiciLocaliController {
 		this.oldScene=oldScene;
 		this.modificaPartenza=modificaPartenza;
 		this.modificaArrivo=modificaArrivo;
+		this.cmbArrivo.setDisable(true);
+		this.cmbPartenza.setDisable(true);
 		
 		
 	}

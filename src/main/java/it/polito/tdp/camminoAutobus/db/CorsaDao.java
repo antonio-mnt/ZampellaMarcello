@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.polito.tdp.camminoAutobus.model.Collegamento;
+import it.polito.tdp.camminoAutobus.model.Corsa;
 import it.polito.tdp.camminoAutobus.model.FermataAutobus;
 
 
@@ -64,11 +65,11 @@ public class CorsaDao {
 		}
 	}
 
-	public List<Integer> listAllIdCorsa() {
-		String sql = "SELECT DISTINCT oa.IdCors " + 
+	public List<Corsa> listAllCorse() {
+		String sql = "SELECT DISTINCT oa.IdCors, oa.linea, oa.identificativo " + 
 				"FROM orari_amat oa " + 
 				"ORDER BY oa.IdCors ";
-		List<Integer> result = new ArrayList<>();
+		List<Corsa> result = new ArrayList<>();
 		Connection conn = DBConnect.getConnection();
 
 		try {
@@ -76,7 +77,9 @@ public class CorsaDao {
 			ResultSet res = st.executeQuery();
 
 			while (res.next()) {
-				result.add(res.getInt("IdCors"));
+				result.add(
+						new Corsa(res.getInt("IdCors"),res.getString("linea"),res.getString("identificativo"))
+						);
 			}
 
 			conn.close();
@@ -117,7 +120,7 @@ public class CorsaDao {
 		}
 	}
 
-	public List<FermataAutobus> getAllFermateByIdentificativo(int idCorsa, String orario) {
+	public List<FermataAutobus> getAllFermateById(int idCorsa, String orario) {
 		String sql = "SELECT oa.identificativo,oa.numeroFermata,oa.CodiceLocale,oa.Desc_stazione,oa.tempoPassato " + 
 				"FROM orari_amat oa " + 
 				"WHERE oa.IdCors=? AND oa.tempoPassato>=? " + 

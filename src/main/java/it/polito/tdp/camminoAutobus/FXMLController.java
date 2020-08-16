@@ -5,8 +5,12 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.jgrapht.graph.DirectedWeightedMultigraph;
+
+import it.polito.tdp.camminoAutobus.model.Arco;
 import it.polito.tdp.camminoAutobus.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,6 +18,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -55,6 +60,17 @@ public class FXMLController {
     
     @FXML
     private TextField txtNumeroMassimo;
+    
+    @FXML
+    private ToggleGroup stagione;
+
+    @FXML
+    private ToggleGroup settimana;
+    
+
+    @FXML
+    private ProgressBar progressBar;
+
 
 
     @FXML
@@ -62,15 +78,40 @@ public class FXMLController {
     	if(!this.checkInput()) {
     		return;
     	}
-    	
-    	
+    	this.progressBar.setProgress(0.5);
     	int arrivo=this.cmbArrivo.getValue();
     	int partenza=this.cmbPartenza.getValue();
     	this.txtResult.clear();
 		this.txtResult.setStyle("-fx-text-inner-color: black;");
-    	this.txtResult.setText("Calcolo percorso in corso...\n");
-    	RadioButton radio=(RadioButton) orario.getSelectedToggle();
-    	this.model.creaGrafo(partenza,arrivo,this.txtOrario.getText(),radio.getText());
+    	this.txtResult.setText("Creazione grafo...\n");
+    	RadioButton radioOrario=(RadioButton) orario.getSelectedToggle();
+    	String strOrario=this.txtOrario.getText();
+    	String sceltaOrario=radioOrario.getText();
+    	RadioButton radioStagione=(RadioButton) stagione.getSelectedToggle();
+    	String sceltaStagione=radioStagione.getText();
+    	RadioButton radioSettimana=(RadioButton) settimana.getSelectedToggle();
+    	String sceltaSettimana=radioSettimana.getText();
+    	long inizio=System.nanoTime();
+    	System.out.println("Inizio creazione grafo");
+    	this.model.creaGrafo(strOrario, sceltaOrario,sceltaStagione,sceltaSettimana);
+    	System.out.println("Fine creazione grafo");
+    	this.txtResult.appendText("grafo creato!\n Inizio ricerca Percorso... \n");
+		LocalTime orario=LocalTime.of(Integer.parseInt(strOrario.substring(0, 2)), Integer.parseInt(strOrario.substring(3)));
+    	ArrayList<Arco> sequenza=this.model.cercaPercorso(partenza,arrivo, orario, sceltaOrario,Integer.parseInt(this.txtNumeroMassimo.getText()));
+    	Arco arcoPartenza=sequenza.get(0);
+    	this.txtResult.appendText("Prendi il bus "+arcoPartenza.getCorsa().getIdentificativo()+" che parte alle ore "+arcoPartenza.getOrarioPartenza()+"\n");
+    	DirectedWeightedMultigraph<Integer, Arco> grafo=model.getGrafo();
+    	for(int k=0;k+1<sequenza.size();k++) {
+    		Arco arco=sequenza.get(k);
+    		String nuovo=sequenza.get(k+1).getCorsa().getIdentificativo();
+    		if(!nuovo.equals(arco.getCorsa().getIdentificativo())) {
+    			this.txtResult.appendText("Alle ore "+arco.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arco))
+    					+" alla fermata "+grafo.getEdgeTarget(arco)+" scendi dall'autobus e aspetta il bus "+nuovo+" che arriva alle ore "+sequenza.get(k+1).getOrarioPartenza()+"\n");
+    		}
+    	}
+    	this.txtResult.appendText("Arrivo previsto alle ore "+model.getMiglioreOrarioArrivo());
+    	long fine=System.nanoTime();
+    	System.out.println((fine-inizio)/(10^9));
     	
     }
     
