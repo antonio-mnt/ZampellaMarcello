@@ -24,6 +24,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class FXMLController {
@@ -69,38 +70,75 @@ public class FXMLController {
     
 
     @FXML
+    private VBox VboxCodici;
+    
+
+    @FXML
     private ProgressBar progressBar;
+    
+    private DirectedWeightedMultigraph<Integer, Arco> grafo;
+    private String strOrario;
+    private String sceltaOrario;
+    private String sceltaStagione;
+    
+    @FXML
+    void doCreaGrafo(ActionEvent event) {
+    	try {
+    		DateTimeFormatter strictTimeFormatter = DateTimeFormatter.ofPattern("HH:mm").withResolverStyle(ResolverStyle.STRICT);
+            LocalTime.parse(this.txtOrario.getText(), strictTimeFormatter);
+    	    } catch (DateTimeParseException | NullPointerException e) {
+        		this.txtResult.setStyle("-fx-text-inner-color: red;");
+    	        this.txtResult.setText("L'ORARIO INSERITO NON E' CORRETTO. IL FORMATO GIUSTO E' HH:MM");
+    	        return ;
+    	    }
+    	this.progressBar.setProgress(0.5);
+    	this.txtResult.clear();
+		this.txtResult.setStyle("-fx-text-inner-color: black;");
+    	this.txtResult.setText("Creazione grafo...\n");
+    	RadioButton radioOrario=(RadioButton) orario.getSelectedToggle();
+    	strOrario=this.txtOrario.getText();
+    	sceltaOrario=radioOrario.getText();
+    	RadioButton radioStagione=(RadioButton) stagione.getSelectedToggle();
+    	sceltaStagione=radioStagione.getText();
+    	RadioButton radioSettimana=(RadioButton) settimana.getSelectedToggle();
+    	String sceltaSettimana=radioSettimana.getText();
+    	System.out.println("Inizio creazione grafo");
+    	String scelta="orari_"+sceltaStagione.toLowerCase()+"_"+sceltaSettimana.toLowerCase();
+    	this.model.creaGrafo(strOrario, sceltaOrario,scelta);
+    	System.out.println("Fine creazione grafo");
+    	grafo=model.getGrafo();
+    	this.txtResult.appendText("grafo creato!\n# NODI: "+grafo.vertexSet().size()+"\n# ARCHI: "+grafo.edgeSet().size()+"\n");
+		this.btnPercorso.setDisable(false);
+		this.VboxCodici.setDisable(false);
+		this.txtNumeroMassimo.setDisable(false);
+		this.cmbPartenza.getItems().clear();
+		this.cmbArrivo.getItems().clear();
+		List<Integer> fermate=this.model.listAllFermate();
+		this.cmbPartenza.getItems().addAll(fermate);
+		this.cmbArrivo.getItems().addAll(fermate);
+
+    }
 
 
 
     @FXML
     void doCalcolaPercorso(ActionEvent event) {
+		
     	if(!this.checkInput()) {
     		return;
     	}
-    	this.progressBar.setProgress(0.5);
     	int arrivo=this.cmbArrivo.getValue();
     	int partenza=this.cmbPartenza.getValue();
-    	this.txtResult.clear();
-		this.txtResult.setStyle("-fx-text-inner-color: black;");
-    	this.txtResult.setText("Creazione grafo...\n");
-    	RadioButton radioOrario=(RadioButton) orario.getSelectedToggle();
-    	String strOrario=this.txtOrario.getText();
-    	String sceltaOrario=radioOrario.getText();
-    	RadioButton radioStagione=(RadioButton) stagione.getSelectedToggle();
-    	String sceltaStagione=radioStagione.getText();
-    	RadioButton radioSettimana=(RadioButton) settimana.getSelectedToggle();
-    	String sceltaSettimana=radioSettimana.getText();
-    	long inizio=System.nanoTime();
-    	System.out.println("Inizio creazione grafo");
-    	this.model.creaGrafo(strOrario, sceltaOrario,sceltaStagione,sceltaSettimana);
-    	System.out.println("Fine creazione grafo");
-    	this.txtResult.appendText("grafo creato!\n Inizio ricerca Percorso... \n");
+    	
 		LocalTime orario=LocalTime.of(Integer.parseInt(strOrario.substring(0, 2)), Integer.parseInt(strOrario.substring(3)));
-    	ArrayList<Arco> sequenza=this.model.cercaPercorso(partenza,arrivo, orario, sceltaOrario,Integer.parseInt(this.txtNumeroMassimo.getText()));
+    	this.txtResult.setText("Inizio ricerca Percorso... \n");
+		ArrayList<Arco> sequenza=this.model.cercaPercorso(partenza,arrivo, orario, sceltaOrario,Integer.parseInt(this.txtNumeroMassimo.getText()));
+    	if(sequenza==null || sequenza.size()==0) {
+    		this.txtResult.appendText("ATTENZIONE: non e' stato trovato alcun percorso possibile. Prova ad aumentare il numero di cambi possibili"); 
+    		return;
+    	}
     	Arco arcoPartenza=sequenza.get(0);
     	this.txtResult.appendText("Prendi il bus "+arcoPartenza.getCorsa().getIdentificativo()+" che parte alle ore "+arcoPartenza.getOrarioPartenza()+"\n");
-    	DirectedWeightedMultigraph<Integer, Arco> grafo=model.getGrafo();
     	for(int k=0;k+1<sequenza.size();k++) {
     		Arco arco=sequenza.get(k);
     		String nuovo=sequenza.get(k+1).getCorsa().getIdentificativo();
@@ -110,9 +148,6 @@ public class FXMLController {
     		}
     	}
     	this.txtResult.appendText("Arrivo previsto alle ore "+model.getMiglioreOrarioArrivo());
-    	long fine=System.nanoTime();
-    	System.out.println((fine-inizio)/(10^9));
-    	
     }
     
     
@@ -128,14 +163,7 @@ public class FXMLController {
     		this.txtResult.setText("SCEGLI UN VALORE DAL BOX PARTENZA!");
     		return false;
     	}
-    	try {
-    		DateTimeFormatter strictTimeFormatter = DateTimeFormatter.ofPattern("HH:mm").withResolverStyle(ResolverStyle.STRICT);
-            LocalTime.parse(this.txtOrario.getText(), strictTimeFormatter);
-    	    } catch (DateTimeParseException | NullPointerException e) {
-        		this.txtResult.setStyle("-fx-text-inner-color: red;");
-    	        this.txtResult.setText("L'ORARIO INSERITO NON E' CORRETTO. IL FORMATO GIUSTO E' HH:MM");
-    	        return false;
-    	    }
+    	
     	
     	stemp=this.txtNumeroMassimo.getText();
     	if(stemp==null) {
@@ -186,12 +214,9 @@ public class FXMLController {
 		this.stage=stage;
 		this.oldScene=scene;
 		this.model=model;
-		this.cmbPartenza.getItems().clear();
-		this.cmbArrivo.getItems().clear();
-		List<Integer> fermate=this.model.listAllFermate();
-		this.cmbPartenza.getItems().addAll(fermate);
-		this.cmbArrivo.getItems().addAll(fermate);
-
+		this.btnPercorso.setDisable(true);
+		this.VboxCodici.setDisable(true);
+		this.txtNumeroMassimo.setDisable(true);
 
 
 	}

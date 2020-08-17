@@ -13,60 +13,69 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 
-<BorderPane prefHeight="475.0" prefWidth="612.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.camminoAutobus.FXMLController">
+<BorderPane prefHeight="475.0" prefWidth="612.0" stylesheets="@../styles/Styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.camminoAutobus.FXMLController">
    <top>
       <Label text="CERCA VIAGGIO AMAT" BorderPane.alignment="CENTER" />
    </top>
    <center>
       <VBox prefHeight="355.0" prefWidth="612.0" BorderPane.alignment="CENTER">
          <children>
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            <VBox fx:id="VboxOrario" prefHeight="200.0" prefWidth="100.0">
                <children>
-                  <Label text="INSERISCI I CODICI LOCALI" />
-                  <ComboBox fx:id="cmbPartenza" prefWidth="150.0" promptText="Codice Locale Partenza" />
-                  <ComboBox fx:id="cmbArrivo" prefWidth="150.0" promptText="Codice Locale Arrivo" />
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="INSERISCI ORARIO:" />
+                        <TextField fx:id="txtOrario" promptText="HH:MM" />
+                        <RadioButton fx:id="radioPartenza" mnemonicParsing="false" selected="true" text="PARTENZA">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="orario" />
+                           </toggleGroup>
+                        </RadioButton>
+                        <RadioButton fx:id="radioArrivo" mnemonicParsing="false" text="ARRIVO" toggleGroup="$orario" />
+                        <Button mnemonicParsing="false" onAction="#doCreaGrafo" text="CREA GRAFO" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="SCEGLI TIPOLOGIA" />
+                        <RadioButton mnemonicParsing="false" selected="true" text="ESTIVO">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="stagione" />
+                           </toggleGroup>
+                        </RadioButton>
+                        <RadioButton mnemonicParsing="false" text="INVERNALE" toggleGroup="$stagione" />
+                        <Line endX="100.0" startX="100.75735473632812" startY="26.292892456054688" />
+                        <RadioButton mnemonicParsing="false" selected="true" text="FERIALE">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="settimana" />
+                           </toggleGroup>
+                        </RadioButton>
+                        <RadioButton mnemonicParsing="false" text="FESTIVO" toggleGroup="$settimana" />
+                     </children>
+                  </HBox>
                </children>
-            </HBox>
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            </VBox>
+            <VBox fx:id="VboxCodici" prefHeight="200.0" prefWidth="100.0">
                <children>
-                  <Label prefHeight="17.0" prefWidth="104.0" text="OPPURE CERCALI" />
-                  <Button mnemonicParsing="false" onAction="#doRicercaCodiciLocali" text="PREMI QUI" />
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="INSERISCI I CODICI LOCALI" />
+                        <ComboBox fx:id="cmbPartenza" prefWidth="150.0" promptText="Codice Locale Partenza" />
+                        <ComboBox fx:id="cmbArrivo" prefWidth="150.0" promptText="Codice Locale Arrivo" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="104.0" text="OPPURE CERCALI" />
+                        <Button mnemonicParsing="false" onAction="#doRicercaCodiciLocali" text="CERCA" />
+                     </children>
+                  </HBox>
                </children>
-            </HBox>
-            <HBox prefHeight="100.0" prefWidth="200.0">
-               <children>
-                  <Label text="INSERISCI ORARIO:" />
-                  <TextField fx:id="txtOrario" promptText="HH:MM" />
-                  <RadioButton fx:id="radioPartenza" mnemonicParsing="false" selected="true" text="PARTENZA">
-                     <toggleGroup>
-                        <ToggleGroup fx:id="orario" />
-                     </toggleGroup>
-                  </RadioButton>
-                  <RadioButton fx:id="radioArrivo" mnemonicParsing="false" text="ARRIVO" toggleGroup="$orario" />
-               </children>
-            </HBox>
+            </VBox>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
                   <Label text="N° MASSIMO AUTOBUS" />
                   <TextField fx:id="txtNumeroMassimo" promptText="inserisci..." />
-               </children>
-            </HBox>
-            <HBox prefHeight="100.0" prefWidth="200.0">
-               <children>
-                  <Label text="SCEGLI TIPOLOGIA" />
-                  <RadioButton mnemonicParsing="false" selected="true" text="ESTIVO">
-                     <toggleGroup>
-                        <ToggleGroup fx:id="stagione" />
-                     </toggleGroup>
-                  </RadioButton>
-                  <RadioButton mnemonicParsing="false" text="INVERNALE" toggleGroup="$stagione" />
-                  <Line endX="100.0" startX="100.75735473632812" startY="26.292892456054688" />
-                  <RadioButton mnemonicParsing="false" selected="true" text="FERIALE">
-                     <toggleGroup>
-                        <ToggleGroup fx:id="settimana" />
-                     </toggleGroup>
-                  </RadioButton>
-                  <RadioButton mnemonicParsing="false" text="FESTIVO" toggleGroup="$settimana" />
                </children>
             </HBox>
             <Button fx:id="btnPercorso" mnemonicParsing="false" onAction="#doCalcolaPercorso" text="CALCOLA PERCORSO" />

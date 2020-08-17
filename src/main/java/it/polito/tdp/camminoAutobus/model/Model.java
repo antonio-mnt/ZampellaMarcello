@@ -27,15 +27,11 @@ public class Model {
 	private ArrayList<Integer> miglioreSequenza;
 	private ArrayList<Arco> miglioreSequenzaArchi;
 	private LocalTime miglioreOrarioArrivo;
+	private int miglioreCambiAutobus;
 	
-	public Model() {
-		dao=new CorsaDao();
-	}
 
 	public List<Integer> listAllFermate() {
-		codiciLocali=dao.listAllCodiceLocale();
 		return codiciLocali;
-		
 	}
 
 	/**
@@ -43,11 +39,11 @@ public class Model {
 	 * distanza in minuti tra 2 codici locali per una data linea
 	 * @param orario orario di interesse
 	 * @param tipo indica partenza o arrivo all'orario indicato
-	 * @param sceltaSettimana 
 	 * @param sceltaStagione 
 	 */
-	public void creaGrafo(String orario, String tipo, String sceltaStagione, String sceltaSettimana) {
-		//AGGIUSTARE SCELTA STAGIONE E SCELTA SETTIMANA
+	public void creaGrafo(String orario, String tipo, String scelta) {
+		dao=new CorsaDao(scelta);
+		codiciLocali=dao.listAllCodiceLocale();
 		grafo=new DirectedWeightedMultigraph<Integer, Arco>(Arco.class);
 		Graphs.addAllVertices(grafo, codiciLocali);
 		corse=dao.listAllCorse();
@@ -95,6 +91,7 @@ public class Model {
 		int codiceLocaleAttuale=partenza;
 		this.numeroMassimo=numeroMassimo;
 		this.orarioPartenza=orario;
+		this.miglioreCambiAutobus=numeroMassimo+1;
 		espandi(parziale,parzialeArchi,codiceLocaleAttuale,successivi, corsaAttuale ,cambiAutobus, arrivo);
 		return this.miglioreSequenzaArchi;
 		
@@ -110,12 +107,15 @@ public class Model {
 			LocalTime orarioArrivo=ultimoArco.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(ultimoArco));
 			//LocalTime partenzaEffettiva=parzialeArchi.get(0).getOrarioPartenza();
 			int tempoReale=(int) Duration.between(this.orarioPartenza, orarioArrivo).toMinutes();
-			if(tempoReale<this.tempoMinimo) {
-				this.tempoMinimo=tempoReale;
-				this.miglioreSequenza=new ArrayList<Integer>(parziale);
-				this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
-				this.miglioreOrarioArrivo=orarioArrivo;
-				return;
+			if(tempoReale<=this.tempoMinimo) {
+				if(cambiAutobus<this.miglioreCambiAutobus) {
+					this.tempoMinimo=tempoReale;
+					this.miglioreSequenza=new ArrayList<Integer>(parziale);
+					this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
+					this.miglioreOrarioArrivo=orarioArrivo;
+					this.miglioreCambiAutobus=cambiAutobus;
+					return;
+				}
 			}
 		}
 		
