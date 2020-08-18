@@ -104,7 +104,7 @@ public class Model {
 						flag++;
 						if(flag>1) {
 							System.out.println("ERRORE! all'interno di una corsa ci puo' essere un solo caso di fermata successiva che abbia tempo minore della precedente,"
-									+ " ossia quando si passa ad un giorno successivo");
+									+ " ossia quando si passa ad un giorno successivo.");
 						}
 					}
 					grafo.setEdgeWeight(arco, peso);
