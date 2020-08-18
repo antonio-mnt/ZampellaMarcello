@@ -1,6 +1,8 @@
 package it.polito.tdp.camminoAutobus.model;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import org.jgrapht.Graphs;
@@ -26,9 +28,13 @@ public class TestModel {
 		//arco.setIdentificativo("piazza");
 		System.out.println(grafo.getAllEdges(1, 2));
 		*/
-		LocalTime primo=LocalTime.of(23, 00);
-		LocalTime secondo=LocalTime.of(23, 00);
-    	System.out.println(primo==(secondo));
+		
+		LocalDateTime orarioPartenza=LocalDateTime.of(LocalDate.ofYearDay(1998, 1), LocalTime.of(23, 30));
+		LocalDateTime orarioArrivo=LocalDateTime.of(LocalDate.ofYearDay(1998, 2), LocalTime.of(2, 50));
+		System.out.println(Duration.between(orarioPartenza, orarioArrivo).toMinutes());
+		LocalDate aa=LocalDate.ofYearDay(1998, 1);
+		aa=aa.plusDays(1);
+		System.out.println(aa);
 
 		
 		

@@ -1,6 +1,8 @@
 package it.polito.tdp.camminoAutobus.model;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,11 +24,11 @@ public class Model {
 	DirectedWeightedMultigraph<Integer, Arco> grafo;
 	List<Corsa> corse;
 	private int numeroMassimo;
-	private LocalTime orarioPartenza;
+	private LocalDateTime orarioPartenza;
 	private int tempoMinimo;
 	private ArrayList<Integer> miglioreSequenza;
 	private ArrayList<Arco> miglioreSequenzaArchi;
-	private LocalTime miglioreOrarioArrivo;
+	private LocalDateTime miglioreOrarioArrivo;
 	private int miglioreCambiAutobus;
 	
 
@@ -37,23 +39,39 @@ public class Model {
 	/**
 	 * Grafo i cui nodi sono i codici locali (zone della citta'), mentre gli archi sono oggetti il cui peso e' la 
 	 * distanza in minuti tra 2 codici locali per una data linea
-	 * @param orario orario di interesse
+	 * @param ltorario orario di interesse
 	 * @param tipo indica partenza o arrivo all'orario indicato
-	 * @param sceltaStagione 
+	 * @param scelta indica la tabella degli orari (estivo/invernale feriale/festivo)
 	 */
-	public void creaGrafo(String orario, String tipo, String scelta) {
+	public void creaGrafo(LocalTime ltorario, String tipo, String scelta) {
 		dao=new CorsaDao(scelta);
 		codiciLocali=dao.listAllCodiceLocale();
 		grafo=new DirectedWeightedMultigraph<Integer, Arco>(Arco.class);
 		Graphs.addAllVertices(grafo, codiciLocali);
-		corse=dao.listAllCorse();
+		
+		int oreDistanza=3;
+		//sto guardando spostamenti urbani, quindi e' impossibile e controproduttivo che il numero di ore impiegato sia alto
+		
+		LocalTime orarioFineInteresse=ltorario.plus(Duration.ofHours(oreDistanza));
+		corse=dao.listAllCorseByOrario(ltorario, orarioFineInteresse);
 		if(tipo.equals("PARTENZA")) {
 		for(Corsa corsa: corse) {
-			List<FermataAutobus>fermate=dao.getAllFermateById(corsa.getId(),orario);
+			List<FermataAutobus>fermate=dao.getAllFermateById(corsa.getId(),ltorario, orarioFineInteresse);
+			LocalDate giornoTemp=LocalDate.ofYearDay(1998, 1);
+			int flag=0;
 			for(int k=0;k+1<fermate.size();k++) {
 				FermataAutobus fermataPartenza=fermate.get(k);
 				FermataAutobus fermataArrivo=fermate.get(k+1);
-				Arco arco=new Arco(corsa,fermataPartenza.getOrario());
+				if(fermataArrivo.getOrario().isBefore(fermataPartenza.getOrario())) {
+					//in questo caso si passa ad un giorno successivo, questo accade una sola volta.
+					giornoTemp=giornoTemp.plusDays(1);
+					flag++;
+					if(flag>1) {
+						System.out.println("ERROREEEEE! "+corsa);
+					}
+				}
+				LocalDateTime inserireTemp=LocalDateTime.of(giornoTemp, fermataPartenza.getOrario());
+				Arco arco=new Arco(corsa,inserireTemp);
 				grafo.addEdge(fermataPartenza.getCodiceLocale(), fermataArrivo.getCodiceLocale(), arco);
 				grafo.setEdgeWeight(arco, Duration.between(fermataPartenza.getOrario(),fermataArrivo.getOrario()).toMinutes());
 			}
@@ -86,11 +104,11 @@ public class Model {
 		parziale.add(partenza);
 		this.tempoMinimo=999999999;
 		int cambiAutobus=0;
-		Set<Arco> successivi = nuoviArchi(partenza,orario);
+		this.orarioPartenza=LocalDateTime.of(LocalDate.ofYearDay(1998, 1), orario);
+		Set<Arco> successivi = nuoviArchi(partenza,this.orarioPartenza);
 		Corsa corsaAttuale=new Corsa(-1,null,null);
 		int codiceLocaleAttuale=partenza;
 		this.numeroMassimo=numeroMassimo;
-		this.orarioPartenza=orario;
 		this.miglioreCambiAutobus=numeroMassimo+1;
 		espandi(parziale,parzialeArchi,codiceLocaleAttuale,successivi, corsaAttuale ,cambiAutobus, arrivo);
 		return this.miglioreSequenzaArchi;
@@ -104,7 +122,7 @@ public class Model {
 		if(codiceLocaleAttuale==arrivo) {
 			//CONDIZIONE DI TERMINAZIONE
 			Arco ultimoArco=parzialeArchi.get(parzialeArchi.size()-1);
-			LocalTime orarioArrivo=ultimoArco.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(ultimoArco));
+			LocalDateTime orarioArrivo=ultimoArco.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(ultimoArco));
 			//LocalTime partenzaEffettiva=parzialeArchi.get(0).getOrarioPartenza();
 			int tempoReale=(int) Duration.between(this.orarioPartenza, orarioArrivo).toMinutes();
 			if(tempoReale<=this.tempoMinimo) {
@@ -127,7 +145,7 @@ public class Model {
 			boolean okay;
 			if(!parziale.contains(grafo.getEdgeTarget(arcoSuccessivo))) {
 					okay = true;
-					LocalTime orarioAttuale=arcoSuccessivo.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoSuccessivo));
+					LocalDateTime orarioAttuale=arcoSuccessivo.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoSuccessivo));
 					if(Duration.between(this.orarioPartenza, orarioAttuale).toMinutes()>this.tempoMinimo) {
 						okay=false;
 					}
@@ -165,7 +183,7 @@ public class Model {
 	 * @param orarioAttuale 
 	 * @return Set di archi interessanti
 	 */
-	private Set<Arco> nuoviArchi(int partenza, LocalTime orarioAttuale) {
+	private Set<Arco> nuoviArchi(int partenza, LocalDateTime orarioAttuale) {
 		Set<Arco> successivi=grafo.outgoingEdgesOf(partenza);
 		HashMap<String,Arco> considerati=new HashMap<String,Arco>();
 		for(Arco arco:successivi) {
@@ -189,7 +207,7 @@ public class Model {
 		return grafo;
 	}
 
-	public LocalTime getMiglioreOrarioArrivo() {
+	public LocalDateTime getMiglioreOrarioArrivo() {
 		return miglioreOrarioArrivo;
 	}
 	

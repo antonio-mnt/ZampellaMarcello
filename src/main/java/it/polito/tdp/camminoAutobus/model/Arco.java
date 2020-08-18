@@ -1,29 +1,30 @@
 package it.polito.tdp.camminoAutobus.model;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 public class Arco extends DefaultWeightedEdge {
 	
-	private LocalTime orarioPartenza;
+	private LocalDateTime orarioPartenza;
 	private Corsa corsa;
 
-	public Arco(Corsa corsa, LocalTime orarioPartenza) {
+	public Arco(Corsa corsa, LocalDateTime inserireTemp) {
 		super();
 		this.corsa = corsa;
-		this.orarioPartenza=orarioPartenza;
+		this.orarioPartenza=inserireTemp;
 	}
 	
 	
 
-	public LocalTime getOrarioPartenza() {
+	public LocalDateTime getOrarioPartenza() {
 		return orarioPartenza;
 	}
 
 
 
-	public void setOrarioPartenza(LocalTime orarioPartenza) {
+	public void setOrarioPartenza(LocalDateTime orarioPartenza) {
 		this.orarioPartenza = orarioPartenza;
 	}
 
