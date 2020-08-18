@@ -30,12 +30,8 @@ public class TestModel {
 		//arco.setIdentificativo("piazza");
 		System.out.println(grafo.getAllEdges(1, 2));
 		*/
-		LocalDate giornoTemp=LocalDate.ofYearDay(1998, 1);
-		LocalDateTime inserireTemp=LocalDateTime.of(giornoTemp, LocalTime.of(23, 59));
-		Arco arco=new Arco(new Corsa(1,null,null),inserireTemp);
-		System.out.println(arco);
-		giornoTemp=giornoTemp.plusDays(1);
-		System.out.println(arco);
+		long peso=Duration.between(LocalDateTime.of(LocalDate.ofYearDay(1998, 1), LocalTime.of(23, 59)),LocalDateTime.of(LocalDate.ofYearDay(1998, 2), LocalTime.of(0, 0))).toMinutes();
+		System.out.println(peso);
 
 	}
 

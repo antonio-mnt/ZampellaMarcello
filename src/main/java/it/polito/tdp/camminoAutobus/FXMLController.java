@@ -107,11 +107,9 @@ public class FXMLController {
     	sceltaStagione=radioStagione.getText();
     	RadioButton radioSettimana=(RadioButton) settimana.getSelectedToggle();
     	String sceltaSettimana=radioSettimana.getText();
-    	System.out.println("Inizio creazione grafo");
     	String scelta="orari_"+sceltaStagione.toLowerCase()+"_"+sceltaSettimana.toLowerCase();
 		this.ltorario=LocalTime.of(Integer.parseInt(strOrario.substring(0, 2)), Integer.parseInt(strOrario.substring(3)));
     	this.grafo=this.model.creaGrafo(ltorario, sceltaOrario,scelta);
-    	System.out.println("Fine creazione grafo");
     	this.txtResult.appendText("grafo creato!\n# NODI: "+grafo.vertexSet().size()+"\n# ARCHI: "+grafo.edgeSet().size()+"\n");
 		this.btnPercorso.setDisable(false);
 		this.VboxCodici.setDisable(false);
@@ -157,11 +155,8 @@ public class FXMLController {
     	Arco arcofine=sequenza.get(sequenza.size()-1);
     	LocalTime oraFine=arcofine.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcofine)).toLocalTime();
     	this.txtResult.appendText("Arrivo previsto alle ore "+oraFine+"\n");
-    	if(model.getMiglioreOrario().getDayOfYear()>1) {
-    		this.txtResult.appendText("ATTENZIONE: il viaggio finisce nel giorno successivo");
-    	}
-    	if(model.getMiglioreOrario().getDayOfYear()>2) {
-    		System.out.println("ERRORE FINALE");
+    	if(arcoPartenza.getOrarioPartenza().toLocalTime().isAfter(oraFine)) {
+    		this.txtResult.appendText("ATTENZIONE: il viaggio si svolge in 2 giorni differenti\n");
     	}
     }
     
