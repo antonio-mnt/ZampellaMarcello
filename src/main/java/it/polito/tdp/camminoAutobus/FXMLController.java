@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.jgrapht.graph.DirectedWeightedMultigraph;
@@ -109,9 +110,8 @@ public class FXMLController {
     	System.out.println("Inizio creazione grafo");
     	String scelta="orari_"+sceltaStagione.toLowerCase()+"_"+sceltaSettimana.toLowerCase();
 		this.ltorario=LocalTime.of(Integer.parseInt(strOrario.substring(0, 2)), Integer.parseInt(strOrario.substring(3)));
-    	this.model.creaGrafo(ltorario, sceltaOrario,scelta);
+    	this.grafo=this.model.creaGrafo(ltorario, sceltaOrario,scelta);
     	System.out.println("Fine creazione grafo");
-    	grafo=model.getGrafo();
     	this.txtResult.appendText("grafo creato!\n# NODI: "+grafo.vertexSet().size()+"\n# ARCHI: "+grafo.edgeSet().size()+"\n");
 		this.btnPercorso.setDisable(false);
 		this.VboxCodici.setDisable(false);
@@ -134,12 +134,15 @@ public class FXMLController {
     	}
     	int arrivo=this.cmbArrivo.getValue();
     	int partenza=this.cmbPartenza.getValue();
-    	
+		this.txtResult.setStyle("-fx-text-inner-color: black;");
     	this.txtResult.setText("Inizio ricerca Percorso... \n");
 		ArrayList<Arco> sequenza=this.model.cercaPercorso(partenza,arrivo, ltorario, sceltaOrario,Integer.parseInt(this.txtNumeroMassimo.getText()));
     	if(sequenza==null || sequenza.size()==0) {
     		this.txtResult.appendText("ATTENZIONE: non e' stato trovato alcun percorso possibile. Prova ad aumentare il numero di cambi possibili"); 
     		return;
+    	}
+    	if(sceltaOrario.equals("ARRIVO")) {
+    		Collections.reverse(sequenza);
     	}
     	Arco arcoPartenza=sequenza.get(0);
     	this.txtResult.appendText("Prendi il bus "+arcoPartenza.getCorsa().getIdentificativo()+" che parte alle ore "+arcoPartenza.getOrarioPartenza().toLocalTime()+"\n");
@@ -151,11 +154,13 @@ public class FXMLController {
     					+" alla fermata "+grafo.getEdgeTarget(arco)+" scendi dall'autobus e aspetta il bus "+nuovo+" che arriva alle ore "+sequenza.get(k+1).getOrarioPartenza().toLocalTime()+"\n");
     		}
     	}
-    	this.txtResult.appendText("Arrivo previsto alle ore "+model.getMiglioreOrarioArrivo().toLocalTime()+"\n");
-    	if(model.getMiglioreOrarioArrivo().getDayOfYear()>1) {
+    	Arco arcofine=sequenza.get(sequenza.size()-1);
+    	LocalTime oraFine=arcofine.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcofine)).toLocalTime();
+    	this.txtResult.appendText("Arrivo previsto alle ore "+oraFine+"\n");
+    	if(model.getMiglioreOrario().getDayOfYear()>1) {
     		this.txtResult.appendText("ATTENZIONE: il viaggio finisce nel giorno successivo");
     	}
-    	if(model.getMiglioreOrarioArrivo().getDayOfYear()>2) {
+    	if(model.getMiglioreOrario().getDayOfYear()>2) {
     		System.out.println("ERRORE FINALE");
     	}
     }

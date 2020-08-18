@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -28,17 +30,12 @@ public class TestModel {
 		//arco.setIdentificativo("piazza");
 		System.out.println(grafo.getAllEdges(1, 2));
 		*/
-		
-		LocalDateTime orarioPartenza=LocalDateTime.of(LocalDate.ofYearDay(1998, 1), LocalTime.of(23, 30));
-		LocalDateTime orarioArrivo=LocalDateTime.of(LocalDate.ofYearDay(1998, 2), LocalTime.of(2, 50));
-		System.out.println(Duration.between(orarioPartenza, orarioArrivo).toMinutes());
-		LocalDate aa=LocalDate.ofYearDay(1998, 1);
-		aa=aa.plusDays(1);
-		System.out.println(aa);
-
-		
-		
-
+		LocalDate giornoTemp=LocalDate.ofYearDay(1998, 1);
+		LocalDateTime inserireTemp=LocalDateTime.of(giornoTemp, LocalTime.of(23, 59));
+		Arco arco=new Arco(new Corsa(1,null,null),inserireTemp);
+		System.out.println(arco);
+		giornoTemp=giornoTemp.plusDays(1);
+		System.out.println(arco);
 
 	}
 

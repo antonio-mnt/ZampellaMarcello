@@ -61,11 +61,14 @@ public class Arco extends DefaultWeightedEdge {
 		return super.getWeight();
 	}
 
+
+
 	@Override
 	public String toString() {
-		return "Arco [corsa=" + corsa + ", weight=" + this.getWeight() + ", source=" + this.getSource() + ", target="
-				+ this.getTarget() + "]";
+		return "Arco [orarioPartenza=" + orarioPartenza + ", corsa=" + corsa + "]";
 	}
+
+
 	
 	
 	
