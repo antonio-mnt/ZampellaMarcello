@@ -157,4 +157,40 @@ public class CorsaDao {
 			return null;
 		}
 	}
+
+	public List<FermataAutobus> getNuovo(LocalTime ltorario, LocalTime orarioFineInteresse) {
+		logica="AND";
+		String sql = "SELECT oa.IdCors,oa.identificativo,oa.linea,oa.numeroFermata,oa.CodiceLocale,oa.Desc_stazione,oa.tempoPassato " + 
+				"FROM "+this.tabella+" oa " + 
+				"WHERE (oa.tempoPassato>=? "+logica+" oa.tempoPassato<=?) " + 
+				"ORDER BY oa.IdCors, oa.numeroFermata ";
+		List<FermataAutobus> result = new ArrayList<>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setTime(1, Time.valueOf(ltorario));
+			st.setTime(2, Time.valueOf(orarioFineInteresse));
+			ResultSet res = st.executeQuery();
+
+			while (res.next()) {
+				FermataAutobus fermata= new FermataAutobus(new Corsa(res.getInt("IdCors"),res.getString("linea"),res.getString("identificativo")),res.getInt("numeroFermata"),
+						 new Collegamento(res.getString("Desc_stazione"),res.getInt("CodiceLocale")),res.getTime("tempoPassato").toLocalTime());
+				result.add(fermata);
+			}
+
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	
+		
+		
+		
+		
+	}
 }

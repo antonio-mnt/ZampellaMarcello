@@ -17,9 +17,11 @@ import it.polito.tdp.camminoAutobus.model.Arco;
 import it.polito.tdp.camminoAutobus.model.Collegamento;
 import it.polito.tdp.camminoAutobus.model.Corsa;
 import it.polito.tdp.camminoAutobus.model.Model;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -29,6 +31,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -83,6 +86,14 @@ public class FXMLController {
     @FXML
     private ProgressBar progressBar;
     
+
+    @FXML
+    private ToggleGroup ricerca;
+    
+
+    @FXML
+    private HBox HBoxAutobus;
+    
     
     @FXML
     private Button btnDettagli;
@@ -136,6 +147,7 @@ public class FXMLController {
 		List<Collegamento> collegamenti=this.model.listAllCollegamenti();
 		this.cmbPartenza.getItems().addAll(collegamenti);
 		this.cmbArrivo.getItems().addAll(collegamenti);
+		
 
     }
 
@@ -217,6 +229,10 @@ public class FXMLController {
     
     String stemp;
 
+	private int indexBoxAutobus;
+
+	private ObservableList<Node> lista;
+
     
     
     @FXML
@@ -225,11 +241,14 @@ public class FXMLController {
     	FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Scene2.fxml"));
 		BorderPane root = loader.load();
 		CodiciLocaliController controller = loader.getController();
-		controller.setModel(model,this.stage,this.oldScene,this.cmbPartenza,this.cmbArrivo);
+		Stage stageNuovo=new Stage();
+		controller.setModel(model,stageNuovo,this.oldScene,this.cmbPartenza,this.cmbArrivo);
 		Scene scene = new Scene(root);
 		scene.getStylesheets().add(getClass().getResource("/styles/Styles.css").toExternalForm());
-		stage.setScene(scene);
-		stage.show();
+		stageNuovo.setScene(scene);
+		stageNuovo.show();
+		//stage.setScene(scene);
+		//stage.show();
     
     }
     
@@ -253,6 +272,17 @@ public class FXMLController {
     	
     }
     
+    @FXML
+    void doEliminaAutobus(ActionEvent event) {
+    	this.lista=this.VboxRicorsione.getChildren();
+    	this.indexBoxAutobus=lista.indexOf(this.HBoxAutobus);
+    	lista.remove(this.indexBoxAutobus);
+    }
+    
+    @FXML
+    void doAggiungiAutobus(ActionEvent event) {
+    	this.lista.add(this.indexBoxAutobus,this.HBoxAutobus);
+    }
     
 	private Model model;
 

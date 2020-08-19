@@ -41,6 +41,10 @@ public class CodiciLocaliController {
 	private ComboBox<Collegamento> modificaPartenza;
 
 	private ComboBox<Collegamento> modificaArrivo;
+	
+
+    @FXML
+    private BorderPane BorderPaneScena2;
 
     @FXML
     void doCercaArrivo(ActionEvent event) {
@@ -91,8 +95,9 @@ public class CodiciLocaliController {
     	if(this.cmbArrivo.getValue()!=null) {
     		this.modificaArrivo.setValue(this.cmbArrivo.getValue());
     	}
-    	stage.setScene(oldScene);
-		stage.show();
+    	this.stage.close();
+    	//stage.setScene(oldScene);
+		//stage.show();
     
     }
 

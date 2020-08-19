@@ -42,3 +42,8 @@
 #VboxRicorsione {
    -fx-background-color: tomato;
 }
+
+
+#BorderPaneScena2 {
+	-fx-background-color: LightSkyBlue;
+}

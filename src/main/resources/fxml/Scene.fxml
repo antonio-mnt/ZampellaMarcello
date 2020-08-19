@@ -72,13 +72,24 @@
                   </HBox>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
+                        <Label text="METODO DI RICERCA" />
+                        <RadioButton mnemonicParsing="false" onAction="#doAggiungiAutobus" selected="true" text="TEMPO MINIMO">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="ricerca" />
+                           </toggleGroup>
+                        </RadioButton>
+                        <RadioButton mnemonicParsing="false" onAction="#doEliminaAutobus" text="CAMBI MINIMI" toggleGroup="$ricerca" />
+                     </children>
+                  </HBox>
+                  <HBox fx:id="HBoxAutobus" prefHeight="100.0" prefWidth="200.0">
+                     <children>
                         <Label text="N° MASSIMO AUTOBUS" />
                         <TextField fx:id="txtNumeroMassimo" promptText="inserisci..." />
-                        <Button fx:id="btnPercorso" mnemonicParsing="false" onAction="#doCalcolaPercorso" text="CALCOLA PERCORSO" />
                      </children>
                   </HBox>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
+                        <Button fx:id="btnPercorso" mnemonicParsing="false" onAction="#doCalcolaPercorso" text="CALCOLA PERCORSO" />
                         <Label text="BARRA DI PROGRESSIONE" />
                         <ProgressBar fx:id="progressBar" prefHeight="22.0" prefWidth="200.0" progress="0.0" />
                         <Button fx:id="btnDettagli" mnemonicParsing="false" onAction="#doDettagliPercorso" text="DETTAGLI PERCORSO" />

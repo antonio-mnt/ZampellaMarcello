@@ -4,15 +4,15 @@ import java.time.LocalTime;
 
 public class FermataAutobus {
 	
-	private String identificativo;
+	private Corsa corsa;
 	private int numeroFermata;
 	private Collegamento collegamento;
 	private LocalTime orario;
-	public String getIdentificativo() {
-		return identificativo;
+	public Corsa getCorsa() {
+		return corsa;
 	}
-	public void setIdentificativo(String identificativo) {
-		this.identificativo = identificativo;
+	public void setCorsa(Corsa corsa) {
+		this.corsa = corsa;
 	}
 	public int getNumeroFermata() {
 		return numeroFermata;
@@ -33,17 +33,17 @@ public class FermataAutobus {
 	public void setOrario(LocalTime orario) {
 		this.orario = orario;
 	}
-	public FermataAutobus(String identificativo, int numeroFermata, Collegamento collegamento,
+	public FermataAutobus(Corsa corsa, int numeroFermata, Collegamento collegamento,
 			LocalTime orario) {
 		super();
-		this.identificativo = identificativo;
+		this.corsa = corsa;
 		this.numeroFermata = numeroFermata;
 		this.collegamento = collegamento;
 		this.orario = orario;
 	}
 	@Override
 	public String toString() {
-		return "FermataAutobus [identificativo=" + identificativo + ", numeroFermata=" + numeroFermata
+		return "FermataAutobus [corsa=" + corsa + ", numeroFermata=" + numeroFermata
 				+ ", collegamento=" + collegamento+ ", orario=" + orario + "]";
 	}
 	
