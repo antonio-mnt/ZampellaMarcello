@@ -6,8 +6,7 @@ public class FermataAutobus {
 	
 	private String identificativo;
 	private int numeroFermata;
-	private int codiceLocale;
-	private String Desc_Stazione;
+	private Collegamento collegamento;
 	private LocalTime orario;
 	public String getIdentificativo() {
 		return identificativo;
@@ -21,37 +20,31 @@ public class FermataAutobus {
 	public void setNumeroFermata(int numeroFermata) {
 		this.numeroFermata = numeroFermata;
 	}
-	public int getCodiceLocale() {
-		return codiceLocale;
+	public Collegamento getCollegamento() {
+		return collegamento;
 	}
-	public void setCodiceLocale(int codiceLocale) {
-		this.codiceLocale = codiceLocale;
+	public void setCollegamento(Collegamento collegamento) {
+		this.collegamento = collegamento;
 	}
-	public String getDesc_Stazione() {
-		return Desc_Stazione;
-	}
-	public void setDesc_Stazione(String desc_Stazione) {
-		Desc_Stazione = desc_Stazione;
-	}
+
 	public LocalTime getOrario() {
 		return orario;
 	}
 	public void setOrario(LocalTime orario) {
 		this.orario = orario;
 	}
-	public FermataAutobus(String identificativo, int numeroFermata, int codiceLocale, String desc_Stazione,
+	public FermataAutobus(String identificativo, int numeroFermata, Collegamento collegamento,
 			LocalTime orario) {
 		super();
 		this.identificativo = identificativo;
 		this.numeroFermata = numeroFermata;
-		this.codiceLocale = codiceLocale;
-		Desc_Stazione = desc_Stazione;
+		this.collegamento = collegamento;
 		this.orario = orario;
 	}
 	@Override
 	public String toString() {
 		return "FermataAutobus [identificativo=" + identificativo + ", numeroFermata=" + numeroFermata
-				+ ", codiceLocale=" + codiceLocale + ", Desc_Stazione=" + Desc_Stazione + ", orario=" + orario + "]";
+				+ ", collegamento=" + collegamento+ ", orario=" + orario + "]";
 	}
 	
 	

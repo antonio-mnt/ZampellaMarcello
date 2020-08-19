@@ -20,7 +20,7 @@
    <center>
       <VBox prefHeight="355.0" prefWidth="612.0" BorderPane.alignment="CENTER">
          <children>
-            <VBox fx:id="VboxOrario" prefHeight="200.0" prefWidth="100.0">
+            <VBox fx:id="VboxGrafo" prefHeight="200.0" prefWidth="100.0">
                <children>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
@@ -55,7 +55,7 @@
                   </HBox>
                </children>
             </VBox>
-            <VBox fx:id="VboxCodici" prefHeight="200.0" prefWidth="100.0">
+            <VBox fx:id="VboxRicorsione" prefHeight="200.0" prefWidth="100.0">
                <children>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
@@ -70,21 +70,22 @@
                         <Button mnemonicParsing="false" onAction="#doRicercaCodiciLocali" text="CERCA" />
                      </children>
                   </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="N° MASSIMO AUTOBUS" />
+                        <TextField fx:id="txtNumeroMassimo" promptText="inserisci..." />
+                        <Button fx:id="btnPercorso" mnemonicParsing="false" onAction="#doCalcolaPercorso" text="CALCOLA PERCORSO" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="BARRA DI PROGRESSIONE" />
+                        <ProgressBar fx:id="progressBar" prefHeight="22.0" prefWidth="200.0" progress="0.0" />
+                        <Button fx:id="btnDettagli" mnemonicParsing="false" onAction="#doDettagliPercorso" text="DETTAGLI PERCORSO" />
+                     </children>
+                  </HBox>
                </children>
             </VBox>
-            <HBox prefHeight="100.0" prefWidth="200.0">
-               <children>
-                  <Label text="N° MASSIMO AUTOBUS" />
-                  <TextField fx:id="txtNumeroMassimo" promptText="inserisci..." />
-               </children>
-            </HBox>
-            <Button fx:id="btnPercorso" mnemonicParsing="false" onAction="#doCalcolaPercorso" text="CALCOLA PERCORSO" />
-            <HBox prefHeight="100.0" prefWidth="200.0">
-               <children>
-                  <Label text="BARRA DI PROGRESSIONE" />
-                  <ProgressBar fx:id="progressBar" prefHeight="18.0" prefWidth="200.0" progress="0.0" />
-               </children>
-            </HBox>
          </children>
       </VBox>
    </center>

@@ -14,6 +14,8 @@ import java.util.List;
 import org.jgrapht.graph.DirectedWeightedMultigraph;
 
 import it.polito.tdp.camminoAutobus.model.Arco;
+import it.polito.tdp.camminoAutobus.model.Collegamento;
+import it.polito.tdp.camminoAutobus.model.Corsa;
 import it.polito.tdp.camminoAutobus.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,21 +30,27 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class FXMLController {
+	
+
+    @FXML
+    private VBox VboxRicorsione;
 
     @FXML
     private TextField txtPartenza;
 
     @FXML
-    private ComboBox<Integer> cmbPartenza;
+    private ComboBox<Collegamento> cmbPartenza;
 
     @FXML
     private TextField txtArrivo;
 
     @FXML
-    private ComboBox<Integer> cmbArrivo;
+    private ComboBox<Collegamento> cmbArrivo;
 
     @FXML
     private Button btnPercorso;
@@ -73,21 +81,30 @@ public class FXMLController {
     
 
     @FXML
-    private VBox VboxCodici;
-    
-
-    @FXML
     private ProgressBar progressBar;
     
-    private DirectedWeightedMultigraph<Integer, Arco> grafo;
+    
+    @FXML
+    private Button btnDettagli;
+    
+    private DirectedWeightedMultigraph<Collegamento, Arco> grafo;
     private String strOrario;
     private String sceltaOrario;
     private String sceltaStagione;
 
 	private LocalTime ltorario;
+
+	private ArrayList<Arco> sequenza;
+
+	private LocalTime oraFine;
+
+	private Arco arcoFine;
+
+	private Arco arcoPartenza;
     
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	this.btnDettagli.setDisable(true);
     	try {
     		DateTimeFormatter strictTimeFormatter = DateTimeFormatter.ofPattern("HH:mm").withResolverStyle(ResolverStyle.STRICT);
             LocalTime.parse(this.txtOrario.getText(), strictTimeFormatter);
@@ -112,13 +129,13 @@ public class FXMLController {
     	this.grafo=this.model.creaGrafo(ltorario, sceltaOrario,scelta);
     	this.txtResult.appendText("grafo creato!\n# NODI: "+grafo.vertexSet().size()+"\n# ARCHI: "+grafo.edgeSet().size()+"\n");
 		this.btnPercorso.setDisable(false);
-		this.VboxCodici.setDisable(false);
+		this.VboxRicorsione.setDisable(false);
 		this.txtNumeroMassimo.setDisable(false);
 		this.cmbPartenza.getItems().clear();
 		this.cmbArrivo.getItems().clear();
-		List<Integer> fermate=this.model.listAllFermate();
-		this.cmbPartenza.getItems().addAll(fermate);
-		this.cmbArrivo.getItems().addAll(fermate);
+		List<Collegamento> collegamenti=this.model.listAllCollegamenti();
+		this.cmbPartenza.getItems().addAll(collegamenti);
+		this.cmbArrivo.getItems().addAll(collegamenti);
 
     }
 
@@ -130,30 +147,33 @@ public class FXMLController {
     	if(!this.checkInput()) {
     		return;
     	}
-    	int arrivo=this.cmbArrivo.getValue();
-    	int partenza=this.cmbPartenza.getValue();
+    	Collegamento arrivo=this.cmbArrivo.getValue();
+    	Collegamento partenza=this.cmbPartenza.getValue();
 		this.txtResult.setStyle("-fx-text-inner-color: black;");
     	this.txtResult.setText("Inizio ricerca Percorso... \n");
-		ArrayList<Arco> sequenza=this.model.cercaPercorso(partenza,arrivo, ltorario, sceltaOrario,Integer.parseInt(this.txtNumeroMassimo.getText()));
+		this.sequenza=this.model.cercaPercorso(partenza,arrivo, ltorario, sceltaOrario,Integer.parseInt(this.txtNumeroMassimo.getText()));
     	if(sequenza==null || sequenza.size()==0) {
     		this.txtResult.appendText("ATTENZIONE: non e' stato trovato alcun percorso possibile. Prova ad aumentare il numero di cambi possibili"); 
+    		this.btnDettagli.setDisable(true);
     		return;
+    	} else {
+    		this.btnDettagli.setDisable(false);
     	}
     	if(sceltaOrario.equals("ARRIVO")) {
     		Collections.reverse(sequenza);
     	}
-    	Arco arcoPartenza=sequenza.get(0);
+    	this.arcoPartenza=sequenza.get(0);
     	this.txtResult.appendText("Prendi il bus "+arcoPartenza.getCorsa().getIdentificativo()+" che parte alle ore "+arcoPartenza.getOrarioPartenza().toLocalTime()+"\n");
     	for(int k=0;k+1<sequenza.size();k++) {
     		Arco arco=sequenza.get(k);
-    		String nuovo=sequenza.get(k+1).getCorsa().getIdentificativo();
-    		if(!nuovo.equals(arco.getCorsa().getIdentificativo())) {
+    		Corsa nuovaCorsa=sequenza.get(k+1).getCorsa();
+    		if(!nuovaCorsa.equals(arco.getCorsa())) {
     			this.txtResult.appendText("Alle ore "+arco.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arco)).toLocalTime()
-    					+" alla fermata "+grafo.getEdgeTarget(arco)+" scendi dall'autobus e aspetta il bus "+nuovo+" che arriva alle ore "+sequenza.get(k+1).getOrarioPartenza().toLocalTime()+"\n");
+    					+" alla fermata "+grafo.getEdgeTarget(arco)+" scendi dall'autobus e aspetta il bus "+nuovaCorsa+" che arriva alle ore "+sequenza.get(k+1).getOrarioPartenza().toLocalTime()+"\n");
     		}
     	}
-    	Arco arcofine=sequenza.get(sequenza.size()-1);
-    	LocalTime oraFine=arcofine.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcofine)).toLocalTime();
+    	this.arcoFine=sequenza.get(sequenza.size()-1);
+    	this.oraFine=arcoFine.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoFine)).toLocalTime();
     	this.txtResult.appendText("Arrivo previsto alle ore "+oraFine+"\n");
     	if(arcoPartenza.getOrarioPartenza().toLocalTime().isAfter(oraFine)) {
     		this.txtResult.appendText("ATTENZIONE: il viaggio si svolge in 2 giorni differenti\n");
@@ -213,6 +233,26 @@ public class FXMLController {
     
     }
     
+
+    @FXML
+    void doDettagliPercorso(ActionEvent event) {
+    	this.txtResult.appendText("*** DETTAGLI PERCORSO ***\n");
+    	Corsa corsa=this.arcoPartenza.getCorsa();
+    	this.txtResult.appendText("++ Corsa iniziale: "+corsa+"\n");
+    	String s;
+    	for(Arco arco: this.sequenza) {
+    		if(!arco.getCorsa().equals(corsa)) {
+    			corsa=arco.getCorsa();
+    			this.txtResult.appendText("++ Cambio Corsa "+corsa+"\n");
+    		}
+    		s=String.format("|%-6s|", arco.getOrarioPartenza().toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")).toString());
+    		this.txtResult.appendText(s+" "+this.grafo.getEdgeSource(arco).toString()+"\n");
+    	}
+		s=String.format("|%-6s|", this.oraFine.format(DateTimeFormatter.ofPattern("HH:mm")).toString());
+		this.txtResult.appendText(s+" "+this.grafo.getEdgeTarget(arcoFine).toString()+"\n");
+    	
+    }
+    
     
 	private Model model;
 
@@ -225,9 +265,9 @@ public class FXMLController {
 		this.oldScene=scene;
 		this.model=model;
 		this.btnPercorso.setDisable(true);
-		this.VboxCodici.setDisable(true);
+		this.VboxRicorsione.setDisable(true);
 		this.txtNumeroMassimo.setDisable(true);
-
+		this.btnDettagli.setDisable(true);
 
 	}
 	

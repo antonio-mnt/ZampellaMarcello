@@ -38,9 +38,9 @@ public class CodiciLocaliController {
 
 	private Scene oldScene;
 
-	private ComboBox<Integer> modificaPartenza;
+	private ComboBox<Collegamento> modificaPartenza;
 
-	private ComboBox<Integer> modificaArrivo;
+	private ComboBox<Collegamento> modificaArrivo;
 
     @FXML
     void doCercaArrivo(ActionEvent event) {
@@ -86,17 +86,17 @@ public class CodiciLocaliController {
     @FXML
     void doInserisciDati(ActionEvent event) {
     	if(this.cmbPartenza.getValue()!=null) {
-    		this.modificaPartenza.setValue(this.cmbPartenza.getValue().getCodiceLocale());
+    		this.modificaPartenza.setValue(this.cmbPartenza.getValue());
     	}
     	if(this.cmbArrivo.getValue()!=null) {
-    		this.modificaArrivo.setValue(this.cmbArrivo.getValue().getCodiceLocale());
+    		this.modificaArrivo.setValue(this.cmbArrivo.getValue());
     	}
     	stage.setScene(oldScene);
 		stage.show();
     
     }
 
-	public void setModel(Model model, Stage stage, Scene oldScene, ComboBox<Integer> modificaPartenza, ComboBox<Integer> modificaArrivo) {
+	public void setModel(Model model, Stage stage, Scene oldScene, ComboBox<Collegamento> modificaPartenza, ComboBox<Collegamento> modificaArrivo) {
 		this.model=model;
 		this.stage=stage;
 		this.oldScene=oldScene;

@@ -31,7 +31,7 @@ public class Corsa {
 	}
 	@Override
 	public String toString() {
-		return "Corsa [id=" + id + ", linea=" + linea + ", identificativo=" + identificativo + "]";
+		return identificativo+" (della linea: "+linea+")";
 	}
 	@Override
 	public int hashCode() {

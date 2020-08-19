@@ -24,11 +24,11 @@ public class CorsaDao {
 		this.tabella=scelta;
 	}
 
-	public List<Integer> listAllCodiceLocale() {
-		String sql = "SELECT distinct oa.CodiceLocale " + 
+	public List<Collegamento> listAllCollegamenti() {
+		String sql = "select DISTINCT oa.CodiceLocale, oa.Desc_stazione " + 
 				"FROM "+this.tabella+" oa " + 
 				"ORDER BY oa.CodiceLocale ";
-		List<Integer> result = new ArrayList<>();
+		List<Collegamento> result = new ArrayList<Collegamento>();
 		Connection conn = DBConnect.getConnection();
 
 		try {
@@ -36,7 +36,7 @@ public class CorsaDao {
 			ResultSet res = st.executeQuery();
 
 			while (res.next()) {
-				result.add(res.getInt("CodiceLocale"));
+				result.add(new Collegamento(res.getString("Desc_stazione"),res.getInt("CodiceLocale")));
 			}
 
 			conn.close();
@@ -144,7 +144,7 @@ public class CorsaDao {
 
 			while (res.next()) {
 				FermataAutobus fermata= new FermataAutobus(res.getString("identificativo"),res.getInt("numeroFermata"),
-						 res.getInt("CodiceLocale"),res.getString("Desc_stazione"),res.getTime("tempoPassato").toLocalTime());
+						 new Collegamento(res.getString("Desc_stazione"),res.getInt("CodiceLocale")),res.getTime("tempoPassato").toLocalTime());
 				result.add(fermata);
 			}
 

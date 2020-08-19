@@ -65,7 +65,7 @@ public class Arco extends DefaultWeightedEdge {
 
 	@Override
 	public String toString() {
-		return "Arco [orarioPartenza=" + orarioPartenza + ", corsa=" + corsa + "]";
+		return orarioPartenza + ", corsa=" + corsa + "]";
 	}
 
 

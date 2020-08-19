@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -30,8 +31,9 @@ public class TestModel {
 		//arco.setIdentificativo("piazza");
 		System.out.println(grafo.getAllEdges(1, 2));
 		*/
-		long peso=Duration.between(LocalDateTime.of(LocalDate.ofYearDay(1998, 1), LocalTime.of(23, 59)),LocalDateTime.of(LocalDate.ofYearDay(1998, 2), LocalTime.of(0, 0))).toMinutes();
-		System.out.println(peso);
+    	System.out.println(LocalTime.of(12, 10,20));
+    	System.out.println(LocalTime.of(12, 10,20).format(DateTimeFormatter.ofPattern("HH:mm")).toString());
+
 
 	}
 
