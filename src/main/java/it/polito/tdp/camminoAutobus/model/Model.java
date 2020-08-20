@@ -50,68 +50,52 @@ public class Model {
 		grafo=new DirectedWeightedMultigraph<Collegamento, Arco>(Arco.class);
 		Graphs.addAllVertices(grafo, collegamenti);
 		
-		int oreDistanza=3;
+		int oreDistanza=5;
 		//sto guardando spostamenti urbani, quindi e' impossibile e controproduttivo che il numero di ore impiegato sia alto
 		
-		
+		List<FermataAutobus>fermate = null;
 		if(tipo.equals("PARTENZA")) {
 			//il grafo ha come archi tutte quelle corse che vanno dall'orario selezionato fino a x ore successive
 			LocalTime orarioFineInteresse=ltorario.plus(Duration.ofHours(oreDistanza));
-			List<FermataAutobus>fermate=dao.getNuovo(ltorario, orarioFineInteresse);				
-			LocalDate giornoTemp=LocalDate.ofYearDay(1998, 1);
+			fermate=dao.getCorseByOrari(ltorario, orarioFineInteresse);
+		} else if (tipo.equals("ARRIVO")) {
+			LocalTime orarioInizioInteresse=ltorario.minus(Duration.ofHours(oreDistanza));
+			fermate=dao.getCorseByOrari(orarioInizioInteresse, ltorario);
+		}
+			LocalDate giornoAttuale=LocalDate.ofYearDay(1998, 1);
+			LocalDate giornoSuccessivo=LocalDate.ofYearDay(1998, 2);
 			for(int k=0;k+1<fermate.size();k++) {
-				int flag=0;
 				FermataAutobus fermataPartenza=fermate.get(k);
 				FermataAutobus fermataArrivo=fermate.get(k+1);
 				if(fermataPartenza.getCorsa().equals(fermataArrivo.getCorsa())) {
-					LocalDateTime inserireTemp=LocalDateTime.of(giornoTemp, fermataPartenza.getOrario());
+					if(!giornoAttuale.equals(giornoSuccessivo) && fermataArrivo.getOrario().isBefore(ltorario)) {
+						//2 casi a testa
+						//ho scelto PARTENZA: 1) la corsa avviene tutta nello stesso giorno, quindi le fermate hanno un orario sempre maggiore di quello selezionato, percio' sono sempre in giorno attuale (1)
+						//2) corsa avviene in giorni diversi, quindi alcune fermate hanno orario superiore a quello selezionato (es 23:50) e andranno in giorno attuale(1), altre inferiore a quello selezionato (es. 01:00) andranno con giornoSuccessivo (2)
+						//se ho scelto ARRIVO 1) tutte le corse nello stesso giorno, quindi le fermate hanno un orario sempre minore di quello selzionato, percio' sono sempre in giornoSuccessivo (2)
+						//2) corse in giorni diversi, quindi alcune fermate hanno orario inferiore a quello selezionato (queste rientrano in giorno successivo) (2), le altre hanno giorno inferiore. (1)
+						giornoAttuale=giornoSuccessivo;
+					}
+					LocalDateTime inserireTemp=LocalDateTime.of(giornoAttuale, fermataPartenza.getOrario());
 					Arco arco=new Arco(fermataPartenza.getCorsa(),inserireTemp);
+					if(fermataPartenza.getCollegamento().equals(fermataArrivo.getCollegamento())) {
+						System.out.println(fermataPartenza.getCollegamento()+"      "+fermataPartenza.getCorsa());
+					}
 					grafo.addEdge(fermataPartenza.getCollegamento(), fermataArrivo.getCollegamento(), arco);
 					long peso=Duration.between(fermataPartenza.getOrario(),fermataArrivo.getOrario()).toMinutes();
 					if(fermataArrivo.getOrario().isBefore(fermataPartenza.getOrario())) {
-						//in questo caso si passa ad un giorno successivo, questo accade una sola volta.
-						giornoTemp=giornoTemp.plusDays(1);
+						//siamo in una corsa che inizia in un giorno e finisce nel giorno successivo 
 						peso=Duration.between(LocalDateTime.of(LocalDate.ofYearDay(1998, 1), fermataPartenza.getOrario()),LocalDateTime.of(LocalDate.ofYearDay(1998, 2), fermataArrivo.getOrario())).toMinutes();
-						flag++;
-						if(flag>1) {
-							System.out.println("ERRORE! all'interno di una corsa ci puo' essere un solo caso di fermata successiva che abbia tempo minore della precedente,"
-									+ " ossia quando si passa ad un giorno successivo");
-						}
 					}
 					grafo.setEdgeWeight(arco, peso);
-				} 
-			}
-		} else if(tipo.equals("ARRIVO")) {
-			//il grafo ha come archi tutte quelle corse che vanno dal x ore precedenti fino all'orario selezionato. Il caso e' molto simile al precedente,
-			// basta infatti aggiustare gli orari passate alle funzioni listAllCorseByOrario e getAllFermateById
-			LocalTime orarioInizioInteresse=ltorario.minus(Duration.ofHours(oreDistanza));
-			List<FermataAutobus>fermate=dao.getNuovo(orarioInizioInteresse, ltorario);
-			LocalDate giornoTemp=LocalDate.ofYearDay(1998, 1);
-				for(int k=0;k+1<fermate.size();k++) {
-					int flag=0;
-					FermataAutobus fermataPartenza=fermate.get(k);
-					FermataAutobus fermataArrivo=fermate.get(k+1);
-					if(fermataPartenza.getCorsa().equals(fermataArrivo.getCorsa())) {
-						LocalDateTime inserireTemp=LocalDateTime.of(giornoTemp, fermataPartenza.getOrario());
-						Arco arco=new Arco(fermataPartenza.getCorsa(),inserireTemp);
-						grafo.addEdge(fermataPartenza.getCollegamento(), fermataArrivo.getCollegamento(), arco);
-						long peso=Duration.between(fermataPartenza.getOrario(),fermataArrivo.getOrario()).toMinutes();
-						if(fermataArrivo.getOrario().isBefore(fermataPartenza.getOrario())) {
-							//in questo caso si passa ad un giorno successivo, questo accade una sola volta.
-							giornoTemp=giornoTemp.plusDays(1);
-							peso=Duration.between(LocalDateTime.of(LocalDate.ofYearDay(1998, 1), fermataPartenza.getOrario()),LocalDateTime.of(LocalDate.ofYearDay(1998, 2), fermataArrivo.getOrario())).toMinutes();
-							flag++;
-							if(flag>1) {
-								System.out.println("ERRORE! all'interno di una corsa ci puo' essere un solo caso di fermata successiva che abbia tempo minore della precedente,"
-										+ " ossia quando si passa ad un giorno successivo.");
-							}
-						}
-						grafo.setEdgeWeight(arco, peso);
-					}
+				} else {
+					//passo ad una corsa successiva, quindi resetto il giorno.
+					giornoAttuale=LocalDate.ofYearDay(1998, 1);
 				}
 			}
-		return grafo;
-	}
+			return grafo;
+		}
+		
 
 	public List<Collegamento> cercaCodice(String key) {
 		return dao.getCodiciLocaliByStazione(key);
@@ -294,10 +278,6 @@ public class Model {
 				
 			}
 		}
-	
-	
-	
-	
 	
 	
 	/**

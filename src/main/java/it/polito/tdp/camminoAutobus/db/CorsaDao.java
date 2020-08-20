@@ -77,8 +77,13 @@ public class CorsaDao {
 		}
 	}
 
-
-	public List<FermataAutobus> getNuovo(LocalTime ltorario, LocalTime orarioFineInteresse) {
+	/**
+	 * 
+	 * @param ltorario Orario di inizio interesse
+	 * @param orarioFineInteresse Orario di fine interesse
+	 * @return Fermate di ogni autobus nell'intervallo indicato
+	 */
+	public List<FermataAutobus> getCorseByOrari(LocalTime ltorario, LocalTime orarioFineInteresse) {
 		String logica;
 		if(orarioFineInteresse.isAfter(ltorario))
 			logica="AND";

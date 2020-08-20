@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="BorderPaneScena2" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.camminoAutobus.CodiciLocaliController">
+<BorderPane fx:id="BorderPaneScena2" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="600.0" stylesheets="@../styles/Styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.camminoAutobus.CodiciLocaliController">
    <center>
       <VBox fx:id="scena2" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
@@ -21,7 +21,7 @@
                   <ComboBox fx:id="cmbPartenza" prefWidth="150.0" promptText="Via di partenza" />
                </children>
             </HBox>
-            <HBox prefHeight="100.0" prefWidth="200.0" stylesheets="@../styles/Styles.css">
+            <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
                   <Label text="SCEGLI LA VIA DI ARRIVO" />
                   <TextField fx:id="txtArrivo" promptText="inserisci parola chiave" />

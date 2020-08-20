@@ -259,13 +259,17 @@ public class FXMLController {
     	Corsa corsa=this.arcoPartenza.getCorsa();
     	this.txtResult.appendText("++ Corsa iniziale: "+corsa+"\n");
     	String s;
+    	Arco arcoPrecedente = null;
     	for(Arco arco: this.sequenza) {
     		if(!arco.getCorsa().equals(corsa)) {
+    			s=String.format("|%-6s|", arcoPrecedente.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoPrecedente)).toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")).toString());
+        		this.txtResult.appendText(s+" "+this.grafo.getEdgeTarget(arcoPrecedente).toString()+"\n");
     			corsa=arco.getCorsa();
     			this.txtResult.appendText("++ Cambio Corsa "+corsa+"\n");
     		}
     		s=String.format("|%-6s|", arco.getOrarioPartenza().toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")).toString());
     		this.txtResult.appendText(s+" "+this.grafo.getEdgeSource(arco).toString()+"\n");
+    		arcoPrecedente=arco;
     	}
 		s=String.format("|%-6s|", this.oraFine.format(DateTimeFormatter.ofPattern("HH:mm")).toString());
 		this.txtResult.appendText(s+" "+this.grafo.getEdgeTarget(arcoFine).toString()+"\n");
