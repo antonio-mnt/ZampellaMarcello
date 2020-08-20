@@ -156,6 +156,9 @@ public class Model {
 					return;
 				}
 			}
+			
+			
+			
 		}
 		
 		for(Arco arcoSuccessivo: successivi) {
@@ -242,6 +245,9 @@ public class Model {
 					return;
 				}
 			}
+			
+			
+			
 		}
 		
 		for(Arco arcoPrecedente: precedenti) {
