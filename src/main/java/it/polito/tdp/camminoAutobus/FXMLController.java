@@ -1,6 +1,7 @@
 package it.polito.tdp.camminoAutobus;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -112,6 +113,12 @@ public class FXMLController {
 	private Arco arcoFine;
 
 	private Arco arcoPartenza;
+
+	private String sceltaRicerca;
+
+	private int numeroMassimo;
+
+	private LocalTime oraPartenza;
     
     @FXML
     void doCreaGrafo(ActionEvent event) {
@@ -155,7 +162,8 @@ public class FXMLController {
 
     @FXML
     void doCalcolaPercorso(ActionEvent event) {
-		
+    	RadioButton radioRicerca=(RadioButton) this.ricerca.getSelectedToggle();
+    	this.sceltaRicerca = radioRicerca.getText();
     	if(!this.checkInput()) {
     		return;
     	}
@@ -163,7 +171,7 @@ public class FXMLController {
     	Collegamento partenza=this.cmbPartenza.getValue();
 		this.txtResult.setStyle("-fx-text-inner-color: black;");
     	this.txtResult.setText("Inizio ricerca Percorso... \n");
-		this.sequenza=this.model.cercaPercorso(partenza,arrivo, ltorario, sceltaOrario,Integer.parseInt(this.txtNumeroMassimo.getText()));
+		this.sequenza=this.model.cercaPercorso(partenza,arrivo, ltorario, sceltaOrario,this.numeroMassimo,this.sceltaRicerca);
     	if(sequenza==null || sequenza.size()==0) {
     		this.txtResult.appendText("ATTENZIONE: non e' stato trovato alcun percorso possibile. Prova ad aumentare il numero di cambi possibili"); 
     		this.btnDettagli.setDisable(true);
@@ -175,7 +183,8 @@ public class FXMLController {
     		Collections.reverse(sequenza);
     	}
     	this.arcoPartenza=sequenza.get(0);
-    	this.txtResult.appendText("Prendi il bus "+arcoPartenza.getCorsa().getIdentificativo()+" che parte alle ore "+arcoPartenza.getOrarioPartenza().toLocalTime()+"\n");
+    	this.oraPartenza=arcoPartenza.getOrarioPartenza().toLocalTime();
+    	this.txtResult.appendText("Prendi il bus "+arcoPartenza.getCorsa().getIdentificativo()+" che parte alle ore "+this.oraPartenza+"\n");
     	for(int k=0;k+1<sequenza.size();k++) {
     		Arco arco=sequenza.get(k);
     		Corsa nuovaCorsa=sequenza.get(k+1).getCorsa();
@@ -186,7 +195,7 @@ public class FXMLController {
     	}
     	this.arcoFine=sequenza.get(sequenza.size()-1);
     	this.oraFine=arcoFine.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoFine)).toLocalTime();
-    	this.txtResult.appendText("Arrivo previsto alle ore "+oraFine+"\n");
+    	this.txtResult.appendText("Arrivo previsto alle ore "+this.oraFine+"\n");
     	if(arcoPartenza.getOrarioPartenza().toLocalTime().isAfter(oraFine)) {
     		this.txtResult.appendText("ATTENZIONE: il viaggio si svolge in 2 giorni differenti\n");
     	}
@@ -206,28 +215,35 @@ public class FXMLController {
     		return false;
     	}
     	
+    	if(this.cmbArrivo.getValue().equals(this.cmbPartenza.getValue())) {
+    		this.txtResult.setStyle("-fx-text-inner-color: red;");
+    		this.txtResult.setText("I VALORI DEI BOX DI PARTENZA E ARRIVO NON POSSONO ESSERE UGUALI!");
+    		return false;
+    	}
     	
-    	stemp=this.txtNumeroMassimo.getText();
-    	if(stemp==null) {
-    		this.txtResult.setStyle("-fx-text-inner-color: red;");
-    		this.txtResult.setText("INSERISCI IL NUMERO MASSIMO DI AUTOBUS!");
-    		return false;
-    	}
-    	if(!this.isInteger(stemp)) {
-    		this.txtResult.setStyle("-fx-text-inner-color: red;");
-    		this.txtResult.setText("IL VALORE MASSIMO DI AUTOBUS DEVE ESSERE NUMERICO INTERO!");
-    		return false;
-    	}
-    	int numeroMassimo=Integer.parseInt(stemp);
-    	if(numeroMassimo==0) {
-    		this.txtResult.setStyle("-fx-text-inner-color: red;");
-    		this.txtResult.setText("IL NUMERO MASSIMO DI AUTOBUS DEVE ESSERE MAGGIORE DI 0!");
-    		return false;
+    	if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
+	    	stemp=this.txtNumeroMassimo.getText();
+	    	if(stemp==null) {
+	    		this.txtResult.setStyle("-fx-text-inner-color: red;");
+	    		this.txtResult.setText("INSERISCI IL NUMERO MASSIMO DI AUTOBUS!");
+	    		return false;
+	    	}
+	    	if(!this.isInteger(stemp)) {
+	    		this.txtResult.setStyle("-fx-text-inner-color: red;");
+	    		this.txtResult.setText("IL VALORE MASSIMO DI AUTOBUS DEVE ESSERE NUMERICO INTERO!");
+	    		return false;
+	    	}
+	    	this.numeroMassimo=Integer.parseInt(stemp);
+	    	if(numeroMassimo<=0) {
+	    		this.txtResult.setStyle("-fx-text-inner-color: red;");
+	    		this.txtResult.setText("IL NUMERO MASSIMO DI AUTOBUS DEVE ESSERE MAGGIORE DI 0!");
+	    		return false;
+	    	}
     	}
 		return true;
 	}
     
-    String stemp;
+    private String stemp;
 
 	private int indexBoxAutobus;
 
@@ -260,8 +276,10 @@ public class FXMLController {
     	this.txtResult.appendText("++ Corsa iniziale: "+corsa+"\n");
     	String s;
     	Arco arcoPrecedente = null;
+    	int contatoreCambi=1;
     	for(Arco arco: this.sequenza) {
     		if(!arco.getCorsa().equals(corsa)) {
+    			contatoreCambi++;
     			s=String.format("|%-6s|", arcoPrecedente.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoPrecedente)).toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")).toString());
         		this.txtResult.appendText(s+" "+this.grafo.getEdgeTarget(arcoPrecedente).toString()+"\n");
     			corsa=arco.getCorsa();
@@ -273,6 +291,24 @@ public class FXMLController {
     	}
 		s=String.format("|%-6s|", this.oraFine.format(DateTimeFormatter.ofPattern("HH:mm")).toString());
 		this.txtResult.appendText(s+" "+this.grafo.getEdgeTarget(arcoFine).toString()+"\n");
+		this.txtResult.appendText("++++++++++++\n INFORMAZIONI SUL VIAGGIO:\nN° Autobus diversi: "+contatoreCambi+"\n");
+		this.txtResult.appendText("Tempo da orario indicato: ");
+		int minutiTotali=(int) Duration.between(this.ltorario, this.oraFine).toMinutes();
+		int hours = minutiTotali / 60; //since both are ints, you get an int
+		int minutes = minutiTotali % 60;
+		if(hours==0)
+			this.txtResult.appendText(minutes+" minuti\n");
+		else
+			this.txtResult.appendText(hours+" ore e "+minutes+" minuti\n");
+		this.txtResult.appendText("Tempo di viaggio effettivo: ");
+		minutiTotali=(int) Duration.between(this.oraPartenza, this.oraFine).toMinutes();
+		hours = minutiTotali / 60; //since both are ints, you get an int
+		minutes = minutiTotali % 60;
+		if(hours==0)
+			this.txtResult.appendText(minutes+" minuti\n");
+		else
+			this.txtResult.appendText(hours+" ore e "+minutes+" minuti\n");
+		
     	
     }
     
@@ -296,14 +332,15 @@ public class FXMLController {
 
 	public void setModel(Model model, Stage stage, Scene scene) {
 		this.stage=stage;
+		
 		this.oldScene=scene;
 		this.model=model;
 		this.btnPercorso.setDisable(true);
 		this.VboxRicorsione.setDisable(true);
 		this.txtNumeroMassimo.setDisable(true);
 		this.btnDettagli.setDisable(true);
-
 	}
+	
 	
     public static boolean isInteger(String str) { 
 	  	  try {  

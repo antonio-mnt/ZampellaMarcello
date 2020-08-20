@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.jgrapht.GraphPath;
 import org.jgrapht.Graphs;
+import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.DirectedWeightedMultigraph;
 
@@ -30,6 +32,7 @@ public class Model {
 	private ArrayList<Arco> miglioreSequenzaArchi;
 	private LocalDateTime miglioreOrario;
 	private int miglioreCambiAutobus;
+	private String sceltaRicerca;
 	
 
 	public List<Collegamento> listAllCollegamenti() {
@@ -50,7 +53,7 @@ public class Model {
 		grafo=new DirectedWeightedMultigraph<Collegamento, Arco>(Arco.class);
 		Graphs.addAllVertices(grafo, collegamenti);
 		
-		int oreDistanza=5;
+		int oreDistanza=23;
 		//sto guardando spostamenti urbani, quindi e' impossibile e controproduttivo che il numero di ore impiegato sia alto
 		
 		List<FermataAutobus>fermate = null;
@@ -108,9 +111,11 @@ public class Model {
 	 * @param orario orario di scelta
 	 * @param scelta indica se l'orario deve essere di partenza o di arrivo
 	 * @param numeroMassimo numero massimo di autobus consentiti
+	 * @param sceltaRicerca 
 	 * @return 
 	 */
-	public ArrayList<Arco> cercaPercorso(Collegamento partenza, Collegamento arrivo, LocalTime orario, String scelta, int numeroMassimo) {
+	public ArrayList<Arco> cercaPercorso(Collegamento partenza, Collegamento arrivo, LocalTime orario, String scelta,
+			int numeroMassimo, String sceltaRicerca) {
 		this.miglioreSequenzaArchi=null;
 		ArrayList<Collegamento> parziale=new ArrayList();
 		ArrayList<Arco> parzialeArchi=new ArrayList();
@@ -118,8 +123,13 @@ public class Model {
 		int cambiAutobus=0;
 		this.orarioIndicato=LocalDateTime.of(LocalDate.ofYearDay(1998, 1), orario);
 		Corsa corsaAttuale=new Corsa(-1,null,null);
-		this.numeroMassimo=numeroMassimo;
-		this.miglioreCambiAutobus=numeroMassimo+1;
+		this.sceltaRicerca=sceltaRicerca;
+    	if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
+    		this.numeroMassimo=numeroMassimo;
+    	}
+    	
+    	
+		this.miglioreCambiAutobus=99;
 		if(scelta.equals("PARTENZA")) {
 			parziale.add(partenza);
 			Set<Arco> successivi = nuoviArchiPartenza(partenza,this.orarioIndicato);
@@ -146,19 +156,29 @@ public class Model {
 			LocalDateTime orarioArrivo=ultimoArco.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(ultimoArco));
 			//LocalTime partenzaEffettiva=parzialeArchi.get(0).getOrarioPartenza();
 			int tempoReale=(int) Duration.between(this.orarioIndicato, orarioArrivo).toMinutes();
-			if(tempoReale<=this.tempoMinimo) {
-				if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus) {
-					this.tempoMinimo=tempoReale;
-					this.miglioreSequenza=new ArrayList<Collegamento>(parziale);
-					this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
-					this.miglioreOrario=orarioArrivo;
-					this.miglioreCambiAutobus=cambiAutobus;
-					return;
+			if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
+				if(tempoReale<=this.tempoMinimo) {
+					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus) {
+						this.tempoMinimo=tempoReale;
+						this.miglioreSequenza=new ArrayList<Collegamento>(parziale);
+						this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
+						this.miglioreOrario=orarioArrivo;
+						this.miglioreCambiAutobus=cambiAutobus;
+						return;
+					}
 				}
-			}
-			
-			
-			
+			} else {
+				if(cambiAutobus<=this.miglioreCambiAutobus) {
+					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus) {
+						this.tempoMinimo=tempoReale;
+						this.miglioreSequenza=new ArrayList<Collegamento>(parziale);
+						this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
+						this.miglioreOrario=orarioArrivo;
+						this.miglioreCambiAutobus=cambiAutobus;
+						return;
+					}
+				}
+			}	
 		}
 		
 		for(Arco arcoSuccessivo: successivi) {
@@ -168,13 +188,21 @@ public class Model {
 			if(!parziale.contains(grafo.getEdgeTarget(arcoSuccessivo))) {
 					okay = true;
 					LocalDateTime orarioAttuale=arcoSuccessivo.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoSuccessivo));
-					if(Duration.between(this.orarioIndicato, orarioAttuale).toMinutes()>this.tempoMinimo) {
-						okay=false;
+					if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
+						if(Duration.between(this.orarioIndicato, orarioAttuale).toMinutes()>this.tempoMinimo) {
+							okay=false;
+						}
 					}
 					
 					if(!arcoSuccessivo.getCorsa().equals(corsaAttuale)) {
+						int tempLimiteAutobus;
 						//cambio autobus
-						if(cambiAutobus+1<=this.numeroMassimo) {
+						if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
+							tempLimiteAutobus=this.numeroMassimo;
+						} else {
+							tempLimiteAutobus=this.miglioreCambiAutobus;
+						}
+						if(cambiAutobus+1<=tempLimiteAutobus) {
 							nuovaCorsa=arcoSuccessivo.getCorsa();
 							nuovoCambiAutobus++;
 						} else {

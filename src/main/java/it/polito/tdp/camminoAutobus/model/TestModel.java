@@ -15,15 +15,12 @@ import org.jgrapht.graph.DirectedWeightedMultigraph;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import it.polito.tdp.camminoAutobus.db.CorsaDao;
+import javafx.collections.ObservableList;
 
 public class TestModel {
 
 	public static void main(String[] args) {
-		LocalDate giorno=LocalDate.ofYearDay(1998, 1);
-		LocalTime ora=LocalTime.of(23, 12);
-		LocalDateTime primo=LocalDateTime.of(giorno, ora);
-		LocalDateTime secondo=LocalDateTime.of(giorno, ora);
-		System.out.println(primo.equals(secondo));
+		
 	}
 	
 	
