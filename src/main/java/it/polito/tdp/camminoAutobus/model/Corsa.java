@@ -1,10 +1,13 @@
 package it.polito.tdp.camminoAutobus.model;
 
+import java.time.LocalTime;
+
 public class Corsa {
 	
 	private int id;
 	private String linea;
 	private String identificativo;
+	private LocalTime oraPartenza;
 	public int getId() {
 		return id;
 	}
@@ -23,15 +26,22 @@ public class Corsa {
 	public void setIdentificativo(String identificativo) {
 		this.identificativo = identificativo;
 	}
-	public Corsa(int id, String linea, String identificativo) {
+	public LocalTime getOraPartenza() {
+		return oraPartenza;
+	}
+	public void setOraPartenza(LocalTime oraPartenza) {
+		this.oraPartenza = oraPartenza;
+	}
+	public Corsa(int id, String linea, String identificativo, LocalTime oraPartenza) {
 		super();
 		this.id = id;
 		this.linea = linea;
 		this.identificativo = identificativo;
+		this.oraPartenza=oraPartenza;
 	}
 	@Override
 	public String toString() {
-		return identificativo+" (della linea: "+linea+")";
+		return identificativo+" (della linea: "+linea+")   ID "+this.id;
 	}
 	@Override
 	public int hashCode() {

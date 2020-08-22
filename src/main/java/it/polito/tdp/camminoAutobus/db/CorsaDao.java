@@ -85,11 +85,14 @@ public class CorsaDao {
 	 */
 	public List<FermataAutobus> getCorseByOrari(LocalTime ltorario, LocalTime orarioFineInteresse) {
 		String logica;
-		if(orarioFineInteresse.isAfter(ltorario))
+		if(orarioFineInteresse.isAfter(ltorario)) {
+			//i 2 orari appartengono allo stesso giorno
 			logica="AND";
-		else
+		} else {
+			//giorni diversi
 			logica="OR";
-		String sql = "SELECT oa.IdCors,oa.identificativo,oa.linea,oa.numeroFermata,oa.CodiceLocale,oa.Desc_stazione,oa.tempoPassato " + 
+		}
+		String sql = "SELECT oa.IdCors,oa.identificativo,oa.linea,oa.numeroFermata,oa.CodiceLocale,oa.Desc_stazione,oa.tempoPassato, oa.tempoPartenza " + 
 				"FROM "+this.tabella+" oa " + 
 				"WHERE (oa.tempoPassato>=? "+logica+" oa.tempoPassato<=?) " + 
 				"ORDER BY oa.IdCors, oa.numeroFermata ";
@@ -103,7 +106,7 @@ public class CorsaDao {
 			ResultSet res = st.executeQuery();
 
 			while (res.next()) {
-				FermataAutobus fermata= new FermataAutobus(new Corsa(res.getInt("IdCors"),res.getString("linea"),res.getString("identificativo")),res.getInt("numeroFermata"),
+				FermataAutobus fermata= new FermataAutobus(new Corsa(res.getInt("IdCors"),res.getString("linea"),res.getString("identificativo"), res.getTime("tempoPartenza").toLocalTime()),res.getInt("numeroFermata"),
 						 new Collegamento(res.getString("Desc_stazione"),res.getInt("CodiceLocale")),res.getTime("tempoPassato").toLocalTime());
 				result.add(fermata);
 			}

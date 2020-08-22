@@ -20,7 +20,7 @@ import javafx.collections.ObservableList;
 public class TestModel {
 
 	public static void main(String[] args) {
-		
+		System.out.println(LocalTime.of(1, 00).minusHours(2));
 	}
 	
 	

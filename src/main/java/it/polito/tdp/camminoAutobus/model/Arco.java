@@ -67,13 +67,6 @@ public class Arco extends DefaultWeightedEdge {
 	public String toString() {
 		return orarioPartenza + ", corsa=" + corsa + "]";
 	}
-
-
-	
-	
-	
-	
-	
 	
 	
 
