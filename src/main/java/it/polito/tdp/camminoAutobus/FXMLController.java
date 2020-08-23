@@ -1,5 +1,6 @@
 package it.polito.tdp.camminoAutobus;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -11,6 +12,9 @@ import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileSystemView;
 
 import org.jgrapht.graph.DirectedWeightedMultigraph;
 
@@ -99,6 +103,10 @@ public class FXMLController {
     @FXML
     private Button btnDettagli;
     
+
+    @FXML
+    private Button btnSalva;
+    
     private DirectedWeightedMultigraph<Collegamento, Arco> grafo;
     private String strOrario;
     private String sceltaOrario;
@@ -108,7 +116,7 @@ public class FXMLController {
 
 	private ArrayList<Arco> sequenza;
 
-	private LocalTime oraFine;
+	private LocalDateTime oraFine;
 
 	private Arco arcoFine;
 
@@ -118,7 +126,7 @@ public class FXMLController {
 
 	private int numeroMassimo;
 
-	private LocalTime oraPartenza;
+	private LocalDateTime oraPartenza;
     
     @FXML
     void doCreaGrafo(ActionEvent event) {
@@ -183,8 +191,8 @@ public class FXMLController {
     		Collections.reverse(sequenza);
     	}
     	this.arcoPartenza=sequenza.get(0);
-    	this.oraPartenza=arcoPartenza.getOrarioPartenza().toLocalTime();
-    	this.txtResult.appendText("Prendi il bus "+arcoPartenza.getCorsa().getIdentificativo()+" che parte alle ore "+this.oraPartenza+"\n");
+    	this.oraPartenza=arcoPartenza.getOrarioPartenza();
+    	this.txtResult.appendText("Prendi il bus "+arcoPartenza.getCorsa().getIdentificativo()+" che parte alle ore "+this.oraPartenza.toLocalTime()+"\n");
     	for(int k=0;k+1<sequenza.size();k++) {
     		Arco arco=sequenza.get(k);
     		Corsa nuovaCorsa=sequenza.get(k+1).getCorsa();
@@ -194,9 +202,9 @@ public class FXMLController {
     		}
     	}
     	this.arcoFine=sequenza.get(sequenza.size()-1);
-    	this.oraFine=arcoFine.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoFine)).toLocalTime();
-    	this.txtResult.appendText("Arrivo previsto alle ore "+this.oraFine+"\n");
-    	if(arcoPartenza.getOrarioPartenza().toLocalTime().isAfter(oraFine)) {
+    	this.oraFine=arcoFine.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoFine));
+    	this.txtResult.appendText("Arrivo previsto alle ore "+this.oraFine.toLocalTime()+"\n");
+    	if(oraPartenza.toLocalTime().isAfter(oraFine.toLocalTime())) {
     		this.txtResult.appendText("ATTENZIONE: il viaggio si svolge in 2 giorni differenti\n");
     	}
     }
@@ -289,17 +297,22 @@ public class FXMLController {
     		this.txtResult.appendText(s+" "+this.grafo.getEdgeSource(arco).toString()+"\n");
     		arcoPrecedente=arco;
     	}
-		s=String.format("|%-6s|", this.oraFine.format(DateTimeFormatter.ofPattern("HH:mm")).toString());
+		s=String.format("|%-6s|", this.oraFine.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")).toString());
 		this.txtResult.appendText(s+" "+this.grafo.getEdgeTarget(arcoFine).toString()+"\n");
 		this.txtResult.appendText("++++++++++++\n INFORMAZIONI SUL VIAGGIO:\nN° Autobus diversi: "+contatoreCambi+"\n");
-		this.txtResult.appendText("Tempo da orario indicato: ");
-		int minutiTotali=(int) Duration.between(this.ltorario, this.oraFine).toMinutes();
-		int hours = minutiTotali / 60; //since both are ints, you get an int
-		int minutes = minutiTotali % 60;
-		if(hours==0)
-			this.txtResult.appendText(minutes+" minuti\n");
-		else
-			this.txtResult.appendText(hours+" ore e "+minutes+" minuti\n");
+		int minutiTotali;
+		int hours;
+		int minutes;
+		if(this.sceltaOrario.equals("PARTENZA")) {
+			this.txtResult.appendText("Tempo da orario indicato: ");
+			minutiTotali=(int) Duration.between(LocalDateTime.of(LocalDate.ofYearDay(1998, 1),this.ltorario), this.oraFine).toMinutes();
+			hours = minutiTotali / 60; 
+			minutes = minutiTotali % 60;
+			if(hours==0)
+				this.txtResult.appendText(minutes+" minuti\n");
+			else
+				this.txtResult.appendText(hours+" ore e "+minutes+" minuti\n");
+		}
 		this.txtResult.appendText("Tempo di viaggio effettivo: ");
 		minutiTotali=(int) Duration.between(this.oraPartenza, this.oraFine).toMinutes();
 		hours = minutiTotali / 60; //since both are ints, you get an int
@@ -309,7 +322,42 @@ public class FXMLController {
 		else
 			this.txtResult.appendText(hours+" ore e "+minutes+" minuti\n");
 		
+		this.btnSalva.setDisable(false);
+		
+		/*
+		try {
+		      FileWriter myWriter = new FileWriter("C:\\Users\\Utente\\Desktop\\filename.txt");
+		      myWriter.write(this.txtResult.getText());
+		      myWriter.close();
+		      System.out.println("Successfully wrote to the file.");
+		    } catch (IOException e) {
+		      System.out.println("An error occurred.");
+		      e.printStackTrace();
+		    }
+		    */
     	
+    }
+    
+
+    @FXML
+    void doSalva(ActionEvent event) {
+    	JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+        jfc.setDialogTitle("Wybierz folder do konwersji: ");
+        jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        jfc.setAcceptAllFileFilterUsed(false);
+        int returnValue = jfc.showSaveDialog(null);
+        if (returnValue != JFileChooser.APPROVE_OPTION) {
+            //if (!jfc.getSelectedFile().isDirectory())
+                return;
+        }
+		int a=this.txtResult.getText().indexOf("\n")+1;
+		try {
+		      FileWriter myWriter = new FileWriter(jfc.getSelectedFile()+"\\filename.txt");
+		      myWriter.write(this.txtResult.getText().substring(a));
+		      myWriter.close();
+		    } catch (IOException e) {
+		      e.printStackTrace();
+		    }
     }
     
     @FXML
@@ -339,6 +387,7 @@ public class FXMLController {
 		this.VboxRicorsione.setDisable(true);
 		this.txtNumeroMassimo.setDisable(true);
 		this.btnDettagli.setDisable(true);
+		this.btnSalva.setDisable(true);
 	}
 	
 	
