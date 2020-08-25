@@ -1,5 +1,8 @@
 package it.polito.tdp.camminoAutobus.model;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,21 +27,9 @@ import javafx.collections.ObservableList;
 public class TestModel {
 
 	public static void main(String[] args) {
-		JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-        //jfc.setDialogTitle("Wybierz folder do konwersji: ");
-        jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        jfc.setAcceptAllFileFilterUsed(false);
-        int returnValue = jfc.showSaveDialog(null);
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            if (jfc.getSelectedFile().isDirectory()) {
-                System.out.println("You selected the directory: " + jfc.getSelectedFile());
-		String s="MArcelllo \n marcello\n";
-		int a=s.indexOf("\n");
-		System.out.println(s.substring(a+1));
+		
+		
+		System.out.println(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
+		
+		}
 	}
-	
-	
-	
-	
-}
-	}}

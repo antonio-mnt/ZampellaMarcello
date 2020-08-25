@@ -1,5 +1,7 @@
 package it.polito.tdp.camminoAutobus;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
@@ -30,16 +32,15 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class FXMLController {
@@ -89,10 +90,6 @@ public class FXMLController {
     
 
     @FXML
-    private ProgressBar progressBar;
-    
-
-    @FXML
     private ToggleGroup ricerca;
     
 
@@ -105,7 +102,18 @@ public class FXMLController {
     
 
     @FXML
+    private HBox HBoxSalva;
+
+    @FXML
+    private TextField txtSalva;
+
+    @FXML
     private Button btnSalva;
+    
+
+    @FXML
+    private Label erroreSalva;
+    
     
     private DirectedWeightedMultigraph<Collegamento, Arco> grafo;
     private String strOrario;
@@ -127,6 +135,9 @@ public class FXMLController {
 	private int numeroMassimo;
 
 	private LocalDateTime oraPartenza;
+
+	private String sceltaSettimana;
+    
     
     @FXML
     void doCreaGrafo(ActionEvent event) {
@@ -139,7 +150,6 @@ public class FXMLController {
     	        this.txtResult.setText("L'ORARIO INSERITO NON E' CORRETTO. IL FORMATO GIUSTO E' HH:MM");
     	        return ;
     	    }
-    	this.progressBar.setProgress(0.5);
     	this.txtResult.clear();
 		this.txtResult.setStyle("-fx-text-inner-color: black;");
     	this.txtResult.setText("Creazione grafo...\n");
@@ -149,7 +159,7 @@ public class FXMLController {
     	RadioButton radioStagione=(RadioButton) stagione.getSelectedToggle();
     	sceltaStagione=radioStagione.getText();
     	RadioButton radioSettimana=(RadioButton) settimana.getSelectedToggle();
-    	String sceltaSettimana=radioSettimana.getText();
+    	this.sceltaSettimana=radioSettimana.getText();
     	String scelta="orari_"+sceltaStagione.toLowerCase()+"_"+sceltaSettimana.toLowerCase();
 		this.ltorario=LocalTime.of(Integer.parseInt(strOrario.substring(0, 2)), Integer.parseInt(strOrario.substring(3)));
     	this.grafo=this.model.creaGrafo(ltorario, sceltaOrario,scelta);
@@ -162,7 +172,7 @@ public class FXMLController {
 		List<Collegamento> collegamenti=this.model.listAllCollegamenti();
 		this.cmbPartenza.getItems().addAll(collegamenti);
 		this.cmbArrivo.getItems().addAll(collegamenti);
-		
+		this.HBoxSalva.setDisable(true);
 
     }
 
@@ -170,6 +180,10 @@ public class FXMLController {
 
     @FXML
     void doCalcolaPercorso(ActionEvent event) {
+    	if(controlloCambioInput()) {
+    		return;
+    	}
+    	this.HBoxSalva.setDisable(true);
     	RadioButton radioRicerca=(RadioButton) this.ricerca.getSelectedToggle();
     	this.sceltaRicerca = radioRicerca.getText();
     	if(!this.checkInput()) {
@@ -211,7 +225,36 @@ public class FXMLController {
     
     
 
-    private boolean checkInput() {
+    private boolean controlloCambioInput() {
+		if(!this.strOrario.equals(this.txtOrario.getText())) {
+			this.txtResult.setStyle("-fx-text-fill: red;");
+    		this.txtResult.setText("HAI CAMBIATO L'ORARIO, PRIMA DI CALCOLARE IL PERCORSO CREA NUOVAMENTE IL GRAFO!");
+			return true;
+		}
+		RadioButton radioTemp=(RadioButton) this.orario.getSelectedToggle();
+		if(!this.sceltaOrario.equals(radioTemp.getText())) {
+			this.txtResult.setStyle("-fx-text-fill: red;");
+    		this.txtResult.setText("HAI CAMBIATO IL TIPO DI VIAGGIO, PRIMA DI CALCOLARE IL PERCORSO CREA NUOVAMENTE IL GRAFO!");
+			return true;
+		}
+		radioTemp=(RadioButton) this.stagione.getSelectedToggle();
+		if(!this.sceltaStagione.equals(radioTemp.getText())) {
+			this.txtResult.setStyle("-fx-text-fill: red;");
+    		this.txtResult.setText("HAI CAMBIATO LA STAGIONE SCELTA, PRIMA DI CALCOLARE IL PERCORSO CREA NUOVAMENTE IL GRAFO!");
+			return true;
+		}
+		radioTemp=(RadioButton) this.settimana.getSelectedToggle();
+		if(!this.sceltaSettimana.equals(radioTemp.getText())) {
+			this.txtResult.setStyle("-fx-text-fill: red;");
+    		this.txtResult.setText("HAI CAMBIATO IL PERIODO SCELTO, PRIMA DI CALCOLARE IL PERCORSO CREA NUOVAMENTE IL GRAFO!");
+			return true;
+		}
+		return false;
+	}
+
+
+
+	private boolean checkInput() {
     	if(this.cmbArrivo.getValue()==null) {
     		this.txtResult.setStyle("-fx-text-fill: red;");
     		this.txtResult.setText("SCEGLI UN VALORE DAL BOX ARRIVO!");
@@ -322,19 +365,7 @@ public class FXMLController {
 		else
 			this.txtResult.appendText(hours+" ore e "+minutes+" minuti\n");
 		
-		this.btnSalva.setDisable(false);
-		
-		/*
-		try {
-		      FileWriter myWriter = new FileWriter("C:\\Users\\Utente\\Desktop\\filename.txt");
-		      myWriter.write(this.txtResult.getText());
-		      myWriter.close();
-		      System.out.println("Successfully wrote to the file.");
-		    } catch (IOException e) {
-		      System.out.println("An error occurred.");
-		      e.printStackTrace();
-		    }
-		    */
+		this.HBoxSalva.setDisable(false);
     	
     }
     
@@ -342,7 +373,7 @@ public class FXMLController {
     @FXML
     void doSalva(ActionEvent event) {
     	JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-        jfc.setDialogTitle("Wybierz folder do konwersji: ");
+        jfc.setDialogTitle("Scegli la cartella in cui salvare il file:");
         jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         jfc.setAcceptAllFileFilterUsed(false);
         int returnValue = jfc.showSaveDialog(null);
@@ -350,14 +381,36 @@ public class FXMLController {
             //if (!jfc.getSelectedFile().isDirectory())
                 return;
         }
-		int a=this.txtResult.getText().indexOf("\n")+1;
+        String nomeFile=this.txtSalva.getText();
+        String percorso=jfc.getSelectedFile()+"\\"+nomeFile+".txt";
+        boolean percorsoEsistente=false;
+        try {
+			new FileReader(percorso);
+			percorsoEsistente=true;
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+		}
+        if(percorsoEsistente) {
+        	this.erroreSalva.setVisible(true);
+        	return;
+        }
+		int indexSalvare=this.txtResult.getText().indexOf("\n")+1;
+		
 		try {
-		      FileWriter myWriter = new FileWriter(jfc.getSelectedFile()+"\\filename.txt");
-		      myWriter.write(this.txtResult.getText().substring(a));
+		      FileWriter myWriter = new FileWriter(percorso);
+		      myWriter.write("RICERCA PER : "+this.sceltaOrario+" ALLE ORE "+this.ltorario+" (ORARIO "+this.sceltaStagione+"-"+this.sceltaSettimana+") "
+		      		+ "DA "+this.cmbPartenza.getValue()+" A "+this.cmbArrivo.getValue()+"\n"+this.txtResult.getText().substring(indexSalvare));
 		      myWriter.close();
 		    } catch (IOException e) {
 		      e.printStackTrace();
 		    }
+    }
+    
+    
+    @FXML
+    void doInvisible(KeyEvent event) {
+    	this.erroreSalva.setVisible(false);
+
     }
     
     @FXML
@@ -387,7 +440,7 @@ public class FXMLController {
 		this.VboxRicorsione.setDisable(true);
 		this.txtNumeroMassimo.setDisable(true);
 		this.btnDettagli.setDisable(true);
-		this.btnSalva.setDisable(true);
+		this.HBoxSalva.setDisable(true);
 	}
 	
 	

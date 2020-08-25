@@ -34,6 +34,7 @@ public class Model {
 	private int miglioreCambiAutobus;
 	private String sceltaRicerca;
 	private int oreDistanza;
+	private int tempoEffettivoMinimo;
 	
 
 	public List<Collegamento> listAllCollegamenti() {
@@ -123,7 +124,8 @@ public class Model {
 		this.miglioreSequenzaArchi=null;
 		ArrayList<Collegamento> parziale=new ArrayList();
 		ArrayList<Arco> parzialeArchi=new ArrayList();
-		this.tempoMinimo=999999999;
+		this.tempoMinimo=this.oreDistanza*60+1; //tempo minimo massimo e' dato dal tempo massimo deciso per il grafo
+		this.tempoEffettivoMinimo=this.tempoMinimo;
 		int cambiAutobus=0;
 		this.orarioIndicato=LocalDateTime.of(LocalDate.ofYearDay(1998, 1), orario);
 		Corsa corsaAttuale=new Corsa(-1,null,null,null);
@@ -157,22 +159,26 @@ public class Model {
 		if(codiceLocaleAttuale.equals(arrivo)) {
 			Arco ultimoArco=parzialeArchi.get(parzialeArchi.size()-1);
 			LocalDateTime orarioArrivo=ultimoArco.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(ultimoArco));
-			//LocalTime partenzaEffettiva=parzialeArchi.get(0).getOrarioPartenza();
+			LocalDateTime partenzaEffettiva=parzialeArchi.get(0).getOrarioPartenza();
+			int tempoEffettivo=(int) Duration.between(partenzaEffettiva, orarioArrivo).toMinutes();
 			int tempoReale=(int) Duration.between(this.orarioIndicato, orarioArrivo).toMinutes();
 			if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
 				if(tempoReale<=this.tempoMinimo) {
-					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus) {
+					//questa e' la prima condizione, se non e' vera questa non considero ne' cambi ne' tempo effettivo
+					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus || tempoEffettivo<this.tempoEffettivoMinimo) {
 						this.tempoMinimo=tempoReale;
 						this.miglioreSequenza=new ArrayList<Collegamento>(parziale);
 						this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
 						this.miglioreOrario=orarioArrivo;
 						this.miglioreCambiAutobus=cambiAutobus;
+						this.tempoEffettivoMinimo=tempoEffettivo;
 						return;
 					}
 				}
 			} else {
 				if(cambiAutobus<=this.miglioreCambiAutobus) {
-					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus) {
+					//questa e' la prima condizione, se non e' vera questa non considero ne' tempo reale ne' tempo effettivo
+					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus || tempoEffettivo<this.tempoEffettivoMinimo) {
 						this.tempoMinimo=tempoReale;
 						this.miglioreSequenza=new ArrayList<Collegamento>(parziale);
 						this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
@@ -310,7 +316,6 @@ public class Model {
 			//CONDIZIONE DI TERMINAZIONE
 			Arco primoArco=parzialeArchi.get(parzialeArchi.size()-1);
 			LocalDateTime orarioPartenza=primoArco.getOrarioPartenza();
-			//LocalTime partenzaEffettiva=parzialeArchi.get(0).getOrarioPartenza();
 			int tempoReale=(int) Duration.between(orarioPartenza,this.orarioIndicato).toMinutes();
 			if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
 				if(tempoReale<=this.tempoMinimo) {
