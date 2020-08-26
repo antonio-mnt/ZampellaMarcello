@@ -95,9 +95,8 @@ public class CodiciLocaliController {
     	if(this.cmbArrivo.getValue()!=null) {
     		this.modificaArrivo.setValue(this.cmbArrivo.getValue());
     	}
-    	this.stage.close();
-    	//stage.setScene(oldScene);
-		//stage.show();
+    	stage.setScene(oldScene);
+		stage.show();
     
     }
 

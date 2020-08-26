@@ -135,7 +135,7 @@ public class Model {
     	}
     	
     	
-		this.miglioreCambiAutobus=15;
+		this.miglioreCambiAutobus=10;
 		if(scelta.equals("PARTENZA")) {
 			parziale.add(partenza);
 			Set<Arco> successivi = nuoviArchiPartenza(partenza,this.orarioIndicato,parziale,parzialeArchi);
@@ -227,8 +227,6 @@ public class Model {
 						parzialeArchi.remove(arcoSuccessivo);
 					}
 					
-				} else {
-					System.out.println("QUAAAAAAAAAAAAAAAAAAAA");
 				}
 				
 			}

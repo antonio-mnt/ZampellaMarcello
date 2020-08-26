@@ -137,13 +137,20 @@ public class FXMLController {
 	private LocalDateTime oraPartenza;
 
 	private String sceltaSettimana;
+
+	private boolean stampato;
+	
+    @FXML
+    void doInserisciOrarioAttuale(ActionEvent event) {
+    	this.txtOrario.setText(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
+    }
     
     
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	this.btnDettagli.setDisable(true);
     	try {
-    		DateTimeFormatter strictTimeFormatter = DateTimeFormatter.ofPattern("HH:mm").withResolverStyle(ResolverStyle.STRICT);
+    		DateTimeFormatter strictTimeFormatter = dtf.withResolverStyle(ResolverStyle.STRICT);
             LocalTime.parse(this.txtOrario.getText(), strictTimeFormatter);
     	    } catch (DateTimeParseException | NullPointerException e) {
         		this.txtResult.setStyle("-fx-text-inner-color: red;");
@@ -164,6 +171,7 @@ public class FXMLController {
 		this.ltorario=LocalTime.of(Integer.parseInt(strOrario.substring(0, 2)), Integer.parseInt(strOrario.substring(3)));
     	this.grafo=this.model.creaGrafo(ltorario, sceltaOrario,scelta);
     	this.txtResult.appendText("grafo creato!\n# NODI: "+grafo.vertexSet().size()+"\n# ARCHI: "+grafo.edgeSet().size()+"\n");
+    	
 		this.btnPercorso.setDisable(false);
 		this.VboxRicorsione.setDisable(false);
 		this.txtNumeroMassimo.setDisable(false);
@@ -206,21 +214,22 @@ public class FXMLController {
     	}
     	this.arcoPartenza=sequenza.get(0);
     	this.oraPartenza=arcoPartenza.getOrarioPartenza();
-    	this.txtResult.appendText("Prendi il bus "+arcoPartenza.getCorsa().getIdentificativo()+" che parte alle ore "+this.oraPartenza.toLocalTime()+"\n");
+    	this.txtResult.appendText("Prendi il bus "+arcoPartenza.getCorsa().getIdentificativo()+" che parte alle ore "+this.oraPartenza.toLocalTime().format(dtf)+"\n");
     	for(int k=0;k+1<sequenza.size();k++) {
     		Arco arco=sequenza.get(k);
     		Corsa nuovaCorsa=sequenza.get(k+1).getCorsa();
     		if(!nuovaCorsa.equals(arco.getCorsa())) {
-    			this.txtResult.appendText("Alle ore "+arco.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arco)).toLocalTime()
-    					+" alla fermata "+grafo.getEdgeTarget(arco)+" scendi dall'autobus e aspetta il bus "+nuovaCorsa+" che arriva alle ore "+sequenza.get(k+1).getOrarioPartenza().toLocalTime()+"\n");
+    			this.txtResult.appendText("Alle ore "+arco.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arco)).toLocalTime().format(dtf)
+    					+" alla fermata "+grafo.getEdgeTarget(arco)+" scendi dall'autobus e aspetta il bus "+nuovaCorsa+" che arriva alle ore "+sequenza.get(k+1).getOrarioPartenza().toLocalTime().format(dtf)+"\n");
     		}
     	}
     	this.arcoFine=sequenza.get(sequenza.size()-1);
     	this.oraFine=arcoFine.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoFine));
-    	this.txtResult.appendText("Arrivo previsto alle ore "+this.oraFine.toLocalTime()+"\n");
+    	this.txtResult.appendText("Arrivo previsto alle ore "+this.oraFine.toLocalTime().format(dtf)+"\n");
     	if(oraPartenza.toLocalTime().isAfter(oraFine.toLocalTime())) {
     		this.txtResult.appendText("ATTENZIONE: il viaggio si svolge in 2 giorni differenti\n");
     	}
+    	this.stampato=false;
     }
     
     
@@ -308,20 +317,20 @@ public class FXMLController {
     	FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Scene2.fxml"));
 		BorderPane root = loader.load();
 		CodiciLocaliController controller = loader.getController();
-		Stage stageNuovo=new Stage();
-		controller.setModel(model,stageNuovo,this.oldScene,this.cmbPartenza,this.cmbArrivo);
+		controller.setModel(model,stage,this.oldScene,this.cmbPartenza,this.cmbArrivo);
 		Scene scene = new Scene(root);
 		scene.getStylesheets().add(getClass().getResource("/styles/Styles.css").toExternalForm());
-		stageNuovo.setScene(scene);
-		stageNuovo.show();
-		//stage.setScene(scene);
-		//stage.show();
+		stage.setScene(scene);
+		stage.show();
     
     }
     
 
     @FXML
     void doDettagliPercorso(ActionEvent event) {
+    	if(stampato) {
+    		return;
+    	}
     	this.txtResult.appendText("*** DETTAGLI PERCORSO ***\n");
     	Corsa corsa=this.arcoPartenza.getCorsa();
     	this.txtResult.appendText("++ Corsa iniziale: "+corsa+"\n");
@@ -331,18 +340,18 @@ public class FXMLController {
     	for(Arco arco: this.sequenza) {
     		if(!arco.getCorsa().equals(corsa)) {
     			contatoreCambi++;
-    			s=String.format("|%-6s|", arcoPrecedente.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoPrecedente)).toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")).toString());
+    			s=String.format("|%-6s|", arcoPrecedente.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoPrecedente)).toLocalTime().format(dtf).toString());
         		this.txtResult.appendText(s+" "+this.grafo.getEdgeTarget(arcoPrecedente).toString()+"\n");
     			corsa=arco.getCorsa();
     			this.txtResult.appendText("++ Cambio Corsa "+corsa+"\n");
     		}
-    		s=String.format("|%-6s|", arco.getOrarioPartenza().toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")).toString());
+    		s=String.format("|%-6s|", arco.getOrarioPartenza().toLocalTime().format(dtf).toString());
     		this.txtResult.appendText(s+" "+this.grafo.getEdgeSource(arco).toString()+"\n");
     		arcoPrecedente=arco;
     	}
-		s=String.format("|%-6s|", this.oraFine.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")).toString());
+		s=String.format("|%-6s|", this.oraFine.toLocalTime().format(dtf).toString());
 		this.txtResult.appendText(s+" "+this.grafo.getEdgeTarget(arcoFine).toString()+"\n");
-		this.txtResult.appendText("++++++++++++\n INFORMAZIONI SUL VIAGGIO:\nN° Autobus diversi: "+contatoreCambi+"\n");
+		this.txtResult.appendText("*******\n INFORMAZIONI SUL VIAGGIO:\nN° Autobus diversi: "+contatoreCambi+"\n");
 		int minutiTotali;
 		int hours;
 		int minutes;
@@ -366,7 +375,7 @@ public class FXMLController {
 			this.txtResult.appendText(hours+" ore e "+minutes+" minuti\n");
 		
 		this.HBoxSalva.setDisable(false);
-    	
+		stampato=true;
     }
     
 
@@ -431,6 +440,8 @@ public class FXMLController {
 
 	private Scene oldScene;
 
+	private DateTimeFormatter dtf;
+
 	public void setModel(Model model, Stage stage, Scene scene) {
 		this.stage=stage;
 		
@@ -441,6 +452,8 @@ public class FXMLController {
 		this.txtNumeroMassimo.setDisable(true);
 		this.btnDettagli.setDisable(true);
 		this.HBoxSalva.setDisable(true);
+    	this.dtf = DateTimeFormatter.ofPattern("HH:mm");
+
 	}
 	
 	

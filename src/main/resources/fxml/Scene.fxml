@@ -25,13 +25,13 @@
                      <children>
                         <Label text="INSERISCI ORARIO:" />
                         <TextField fx:id="txtOrario" promptText="HH:MM" />
+                        <Button mnemonicParsing="false" onAction="#doInserisciOrarioAttuale" text="ADESSO" />
                         <RadioButton fx:id="radioPartenza" mnemonicParsing="false" selected="true" text="PARTENZA">
                            <toggleGroup>
                               <ToggleGroup fx:id="orario" />
                            </toggleGroup>
                         </RadioButton>
                         <RadioButton fx:id="radioArrivo" mnemonicParsing="false" text="ARRIVO" toggleGroup="$orario" />
-                        <Button mnemonicParsing="false" onAction="#doCreaGrafo" text="CREA GRAFO" />
                      </children>
                   </HBox>
                   <HBox prefHeight="100.0" prefWidth="200.0">
@@ -52,6 +52,7 @@
                         <RadioButton mnemonicParsing="false" text="FESTIVO" toggleGroup="$settimana" />
                      </children>
                   </HBox>
+                  <Button mnemonicParsing="false" onAction="#doCreaGrafo" text="CREA GRAFO" />
                </children>
             </VBox>
             <VBox fx:id="VboxRicorsione" prefHeight="200.0" prefWidth="100.0">
