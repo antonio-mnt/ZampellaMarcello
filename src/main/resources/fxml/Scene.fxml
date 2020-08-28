@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
@@ -10,105 +11,206 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Line?>
 
-<BorderPane prefHeight="475.0" prefWidth="612.0" stylesheets="@../styles/Styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.camminoAutobus.FXMLController">
+<BorderPane prefHeight="576.0" prefWidth="614.0" stylesheets="@../styles/Styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.camminoAutobus.FXMLController">
    <top>
       <Label text="CERCA VIAGGIO AMAT" BorderPane.alignment="CENTER" />
    </top>
    <center>
-      <VBox prefHeight="355.0" prefWidth="612.0" BorderPane.alignment="CENTER">
+      <VBox minHeight="10.0" prefHeight="310.0" prefWidth="614.0" BorderPane.alignment="CENTER">
          <children>
-            <VBox fx:id="VboxGrafo" prefHeight="200.0" prefWidth="100.0">
+            <VBox fx:id="VboxGrafo" prefHeight="117.0" prefWidth="614.0">
                <children>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
                         <Label text="INSERISCI ORARIO:" />
-                        <TextField fx:id="txtOrario" promptText="HH:MM" />
-                        <Button mnemonicParsing="false" onAction="#doInserisciOrarioAttuale" text="ADESSO" />
+                        <TextField fx:id="txtOrario" promptText="HH:MM">
+                           <HBox.margin>
+                              <Insets left="7.0" />
+                           </HBox.margin></TextField>
+                        <Button mnemonicParsing="false" onAction="#doInserisciOrarioAttuale" text="ADESSO">
+                           <HBox.margin>
+                              <Insets left="7.0" />
+                           </HBox.margin></Button>
                         <RadioButton fx:id="radioPartenza" mnemonicParsing="false" selected="true" text="PARTENZA">
                            <toggleGroup>
                               <ToggleGroup fx:id="orario" />
                            </toggleGroup>
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
                         </RadioButton>
-                        <RadioButton fx:id="radioArrivo" mnemonicParsing="false" text="ARRIVO" toggleGroup="$orario" />
+                        <RadioButton fx:id="radioArrivo" mnemonicParsing="false" text="ARRIVO" toggleGroup="$orario">
+                           <HBox.margin>
+                              <Insets left="4.0" />
+                           </HBox.margin></RadioButton>
                      </children>
+                     <VBox.margin>
+                        <Insets left="8.0" top="8.0" />
+                     </VBox.margin>
                   </HBox>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <Label text="SCEGLI TIPOLOGIA" />
-                        <RadioButton mnemonicParsing="false" selected="true" text="ESTIVO">
-                           <toggleGroup>
-                              <ToggleGroup fx:id="stagione" />
-                           </toggleGroup>
-                        </RadioButton>
-                        <RadioButton mnemonicParsing="false" text="INVERNALE" toggleGroup="$stagione" />
-                        <Line endX="100.0" startX="100.75735473632812" startY="26.292892456054688" />
-                        <RadioButton mnemonicParsing="false" selected="true" text="FERIALE">
-                           <toggleGroup>
-                              <ToggleGroup fx:id="settimana" />
-                           </toggleGroup>
-                        </RadioButton>
-                        <RadioButton mnemonicParsing="false" text="FESTIVO" toggleGroup="$settimana" />
+                        <Label text="SCEGLI TIPOLOGIA:">
+                           <HBox.margin>
+                              <Insets top="3.0" />
+                           </HBox.margin></Label>
+                        <HBox fx:id="HBoxStagione" prefHeight="23.0" prefWidth="155.0">
+                           <children>
+                              <RadioButton mnemonicParsing="false" selected="true" text="ESTIVO">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="stagione" />
+                                 </toggleGroup>
+                              </RadioButton>
+                              <RadioButton mnemonicParsing="false" text="INVERNALE" toggleGroup="$stagione" />
+                           </children>
+                           <HBox.margin>
+                              <Insets bottom="15.0" left="8.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets left="4.0" />
+                           </padding>
+                        </HBox>
+                        <HBox fx:id="HBoxSettimana" prefHeight="11.0" prefWidth="143.0">
+                           <children>
+                              <RadioButton mnemonicParsing="false" text="FESTIVO">
+                                 <HBox.margin>
+                                    <Insets left="4.0" />
+                                 </HBox.margin>
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="settimana" />
+                                 </toggleGroup>
+                              </RadioButton>
+                              <RadioButton mnemonicParsing="false" selected="true" text="FERIALE" toggleGroup="$settimana" />
+                           </children>
+                           <HBox.margin>
+                              <Insets bottom="15.0" left="50.0" />
+                           </HBox.margin>
+                        </HBox>
                      </children>
+                     <VBox.margin>
+                        <Insets left="8.0" />
+                     </VBox.margin>
                   </HBox>
-                  <Button mnemonicParsing="false" onAction="#doCreaGrafo" text="CREA GRAFO" />
+                  <Button mnemonicParsing="false" onAction="#doCreaGrafo" text="CREA GRAFO">
+                     <VBox.margin>
+                        <Insets bottom="8.0" left="8.0" />
+                     </VBox.margin></Button>
                </children>
             </VBox>
-            <VBox fx:id="VboxRicorsione" prefHeight="200.0" prefWidth="100.0">
+            <VBox fx:id="VboxRicorsione" prefHeight="203.0" prefWidth="614.0">
                <children>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <Label text="INSERISCI I CODICI LOCALI" />
-                        <ComboBox fx:id="cmbPartenza" prefWidth="150.0" promptText="Codice Locale Partenza" />
-                        <ComboBox fx:id="cmbArrivo" prefWidth="150.0" promptText="Codice Locale Arrivo" />
+                        <Label text="INSERISCI I CODICI LOCALI">
+                           <HBox.margin>
+                              <Insets top="5.0" />
+                           </HBox.margin></Label>
+                        <ComboBox fx:id="cmbPartenza" prefWidth="150.0" promptText="Codice Locale Partenza">
+                           <HBox.margin>
+                              <Insets left="8.0" />
+                           </HBox.margin></ComboBox>
+                        <ComboBox fx:id="cmbArrivo" prefWidth="150.0" promptText="Codice Locale Arrivo">
+                           <HBox.margin>
+                              <Insets left="8.0" />
+                           </HBox.margin></ComboBox>
                      </children>
+                     <VBox.margin>
+                        <Insets left="8.0" top="8.0" />
+                     </VBox.margin>
                   </HBox>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <Label prefHeight="17.0" prefWidth="104.0" text="OPPURE CERCALI" />
-                        <Button mnemonicParsing="false" onAction="#doRicercaCodiciLocali" text="CERCA" />
+                        <Label prefHeight="17.0" prefWidth="96.0" text="OPPURE CERCALI">
+                           <HBox.margin>
+                              <Insets top="5.0" />
+                           </HBox.margin></Label>
+                        <Button mnemonicParsing="false" onAction="#doRicercaCodiciLocali" text="CERCA">
+                           <HBox.margin>
+                              <Insets left="6.0" />
+                           </HBox.margin></Button>
                      </children>
+                     <VBox.margin>
+                        <Insets left="8.0" />
+                     </VBox.margin>
                   </HBox>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
                         <Label text="METODO DI RICERCA" />
-                        <RadioButton mnemonicParsing="false" onAction="#doAggiungiAutobus" selected="true" text="TEMPO MINIMO">
-                           <toggleGroup>
-                              <ToggleGroup fx:id="ricerca" />
-                           </toggleGroup>
-                        </RadioButton>
-                        <RadioButton mnemonicParsing="false" onAction="#doEliminaAutobus" text="CAMBI MINIMI" toggleGroup="$ricerca" />
+                        <HBox prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <RadioButton mnemonicParsing="false" onAction="#doAggiungiAutobus" selected="true" text="TEMPO MINIMO">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="ricerca" />
+                                 </toggleGroup>
+                                 <HBox.margin>
+                                    <Insets left="8.0" />
+                                 </HBox.margin>
+                              </RadioButton>
+                              <RadioButton mnemonicParsing="false" onAction="#doEliminaAutobus" text="CAMBI MINIMI" toggleGroup="$ricerca">
+                                 <HBox.margin>
+                                    <Insets left="5.0" />
+                                 </HBox.margin>
+                              </RadioButton>
+                           </children>
+                        </HBox>
                      </children>
+                     <VBox.margin>
+                        <Insets left="8.0" />
+                     </VBox.margin>
                   </HBox>
                   <HBox fx:id="HBoxAutobus" prefHeight="100.0" prefWidth="200.0">
                      <children>
                         <Label text="N° MASSIMO AUTOBUS" />
                         <TextField fx:id="txtNumeroMassimo" promptText="inserisci..." />
                      </children>
+                     <VBox.margin>
+                        <Insets left="8.0" />
+                     </VBox.margin>
                   </HBox>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
                         <Button fx:id="btnPercorso" mnemonicParsing="false" onAction="#doCalcolaPercorso" text="CALCOLA PERCORSO" />
-                        <Button fx:id="btnDettagli" mnemonicParsing="false" onAction="#doDettagliPercorso" text="DETTAGLI PERCORSO" />
+                        <Button fx:id="btnDettagli" mnemonicParsing="false" onAction="#doDettagliPercorso" text="DETTAGLI PERCORSO" translateX="330.0" />
                      </children>
+                     <VBox.margin>
+                        <Insets bottom="8.0" left="8.0" top="5.0" />
+                     </VBox.margin>
                   </HBox>
                </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
             </VBox>
          </children>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
       </VBox>
    </center>
    <bottom>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="239.0" prefWidth="614.0" BorderPane.alignment="CENTER">
          <children>
             <TextArea fx:id="txtResult" editable="false" prefHeight="200.0" prefWidth="200.0" />
-            <HBox fx:id="HBoxSalva" prefHeight="100.0" prefWidth="200.0">
+            <HBox fx:id="HBoxSalva" prefHeight="42.0" prefWidth="614.0">
                <children>
-                  <Label text="INSERISCI IL NOME DEL FILE:" />
-                  <TextField fx:id="txtSalva" onKeyPressed="#doInvisible" />
-                  <Button fx:id="btnSalva" mnemonicParsing="false" onAction="#doSalva" text="SALVA" />
+                  <Label text="INSERISCI IL NOME DEL FILE:">
+                     <HBox.margin>
+                        <Insets top="4.0" />
+                     </HBox.margin></Label>
+                  <TextField fx:id="txtSalva" onKeyPressed="#doInvisible">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin></TextField>
+                  <Button fx:id="btnSalva" mnemonicParsing="false" onAction="#doSalva" text="SALVA">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin></Button>
                   <Label fx:id="erroreSalva" text="FILE GIA' ESISTENTE NELLA CARTELLA" textFill="RED" visible="false" />
                </children>
+               <padding>
+                  <Insets bottom="8.0" left="8.0" top="8.0" />
+               </padding>
             </HBox>
          </children>
       </VBox>

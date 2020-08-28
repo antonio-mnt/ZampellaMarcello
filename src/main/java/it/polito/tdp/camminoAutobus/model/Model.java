@@ -24,7 +24,6 @@ public class Model {
 	private CorsaDao dao;
 	private List<Collegamento> collegamenti;
 	private DirectedWeightedMultigraph<Collegamento, Arco> grafo;
-	private List<Corsa> corse;
 	private int numeroMassimo;
 	private LocalDateTime orarioIndicato; //questo orario, a seconda dei casi, puo' indicare l'orario di partenza o l'orario di arrivo
 	private int tempoMinimo;
@@ -40,6 +39,12 @@ public class Model {
 	public List<Collegamento> listAllCollegamenti() {
 		return collegamenti;
 	}
+	
+	
+	public List<Collegamento> getCollegamenti() {
+		return collegamenti;
+	}
+
 
 	/**
 	 * Grafo i cui nodi sono i codici locali (zone della citta'), mentre gli archi sono oggetti il cui peso e' la 
@@ -47,9 +52,11 @@ public class Model {
 	 * @param ltorario orario di interesse
 	 * @param tipo indica partenza o arrivo all'orario indicato
 	 * @param scelta indica la tabella degli orari (estivo/invernale feriale/festivo)
-	 * @return 
+	 * @return grafo creato
+	 * @throws EccezioneLoop 
 	 */
-	public DirectedWeightedMultigraph<Collegamento, Arco> creaGrafo(LocalTime ltorario, String tipo, String scelta) {
+	public DirectedWeightedMultigraph<Collegamento, Arco> creaGrafo(LocalTime ltorario, String tipo, String scelta)
+			throws EccezioneLoop {
 		dao=new CorsaDao(scelta);
 		collegamenti=dao.listAllCollegamenti();
 		grafo=new DirectedWeightedMultigraph<Collegamento, Arco>(Arco.class);
@@ -86,7 +93,8 @@ public class Model {
 					LocalDateTime inserireTemp=LocalDateTime.of(giornoAttuale, fermataPartenza.getOrario());
 					Arco arco=new Arco(fermataPartenza.getCorsa(),inserireTemp);
 					if(fermataPartenza.getCollegamento().equals(fermataArrivo.getCollegamento())) {
-						System.out.println(fermataPartenza.getCollegamento()+"      "+fermataPartenza.getCorsa());
+						//ho notato che uno dei maggiori problemi nel database di prova era la presenza di righe uguali adiacenti
+						throw new EccezioneLoop(fermataPartenza);
 					}
 					grafo.addEdge(fermataPartenza.getCollegamento(), fermataArrivo.getCollegamento(), arco);
 					long peso=Duration.between(fermataPartenza.getOrario(),fermataArrivo.getOrario()).toMinutes();
@@ -104,7 +112,11 @@ public class Model {
 			return grafo;
 		}
 		
-
+	/**
+	 * data una stringa , ricerca tutti i collegamenti (codice locale, Descrizione stazione) la cui descrizione stazione contiene la stringa
+	 * @param Stringa da contenere
+	 * @return Lista di collegamenti
+	 */
 	public List<Collegamento> cercaCodice(String key) {
 		return dao.getCodiciLocaliByStazione(key);
 	}
@@ -135,7 +147,8 @@ public class Model {
     	}
     	
     	
-		this.miglioreCambiAutobus=10;
+		this.miglioreCambiAutobus=10; //limite che vale sia per sceltaRicerca tempo minimo che per cambi minimi. Specialmente per la seconda e' importante non avere un numero troppo alto per non 
+		//rendere la ricorsione eccessivamente lunga
 		if(scelta.equals("PARTENZA")) {
 			parziale.add(partenza);
 			Set<Arco> successivi = nuoviArchiPartenza(partenza,this.orarioIndicato,parziale,parzialeArchi);
@@ -233,7 +246,7 @@ public class Model {
 		}
 
 	/**
-	 * Gli archi che voglio visitare nella mia ricorsione non sono tutti quelli che collegano due fermate, ma solo uno per 
+	 * La funzione restituisce un solo arco per identificativo. Inoltre solo quegli archi il cui identificativo non e' stato gia' considerato o che e' considerato, ma con orario di partenza inferiore.
 	 * identificativo diverso, ossia quello più vicino (temporalmente parlando) 
 	 * @param partenza id del codice locale di partenza
 	 * @param orarioAttuale 
@@ -387,8 +400,8 @@ public class Model {
 	
 	/**
 	 * Metodo speculare a nuoviArchiPartenza.
-	 * Gli archi che voglio visitare nella mia ricorsione non sono tutti quelli che collegano due fermate, ma solo uno per 
-	 * identificativo diverso, ossia quello più vicino (temporalmente parlando) 
+	 * La funzione restituisce un solo arco per identificativo.
+	 * Inoltre solo quegli archi il cui identificativo non e' stato gia' considerato o che e' considerato, ma con orario di partenza inferiore.
 	 * @param arrivo
 	 * @param orarioAttuale
 	 * @param parzialeArchi 
@@ -458,12 +471,6 @@ public class Model {
 		
 		return archiNuovo;
 	}
-
-
-	public LocalDateTime getMiglioreOrario() {
-		return miglioreOrario;
-	}
-	
 	
 	
 		

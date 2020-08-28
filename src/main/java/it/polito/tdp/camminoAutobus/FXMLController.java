@@ -23,6 +23,7 @@ import org.jgrapht.graph.DirectedWeightedMultigraph;
 import it.polito.tdp.camminoAutobus.model.Arco;
 import it.polito.tdp.camminoAutobus.model.Collegamento;
 import it.polito.tdp.camminoAutobus.model.Corsa;
+import it.polito.tdp.camminoAutobus.model.EccezioneLoop;
 import it.polito.tdp.camminoAutobus.model.Model;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -119,25 +120,15 @@ public class FXMLController {
     private String strOrario;
     private String sceltaOrario;
     private String sceltaStagione;
-
 	private LocalTime ltorario;
-
 	private ArrayList<Arco> sequenza;
-
 	private LocalDateTime oraFine;
-
 	private Arco arcoFine;
-
 	private Arco arcoPartenza;
-
 	private String sceltaRicerca;
-
 	private int numeroMassimo;
-
 	private LocalDateTime oraPartenza;
-
 	private String sceltaSettimana;
-
 	private boolean stampato;
 	
     @FXML
@@ -147,7 +138,7 @@ public class FXMLController {
     
     
     @FXML
-    void doCreaGrafo(ActionEvent event) {
+    void doCreaGrafo(ActionEvent event) throws EccezioneLoop {
     	this.btnDettagli.setDisable(true);
     	try {
     		DateTimeFormatter strictTimeFormatter = dtf.withResolverStyle(ResolverStyle.STRICT);
@@ -157,7 +148,6 @@ public class FXMLController {
     	        this.txtResult.setText("L'ORARIO INSERITO NON E' CORRETTO. IL FORMATO GIUSTO E' HH:MM");
     	        return ;
     	    }
-    	this.txtResult.clear();
 		this.txtResult.setStyle("-fx-text-inner-color: black;");
     	this.txtResult.setText("Creazione grafo...\n");
     	RadioButton radioOrario=(RadioButton) orario.getSelectedToggle();
@@ -170,18 +160,16 @@ public class FXMLController {
     	String scelta="orari_"+sceltaStagione.toLowerCase()+"_"+sceltaSettimana.toLowerCase();
 		this.ltorario=LocalTime.of(Integer.parseInt(strOrario.substring(0, 2)), Integer.parseInt(strOrario.substring(3)));
     	this.grafo=this.model.creaGrafo(ltorario, sceltaOrario,scelta);
+    	if(this.cmbArrivo.getItems().isEmpty()) {
+			List<Collegamento> collegamenti=this.model.getCollegamenti();
+			this.cmbPartenza.getItems().addAll(collegamenti);
+			this.cmbArrivo.getItems().addAll(collegamenti);
+    	}
     	this.txtResult.appendText("grafo creato!\n# NODI: "+grafo.vertexSet().size()+"\n# ARCHI: "+grafo.edgeSet().size()+"\n");
-    	
 		this.btnPercorso.setDisable(false);
 		this.VboxRicorsione.setDisable(false);
 		this.txtNumeroMassimo.setDisable(false);
-		this.cmbPartenza.getItems().clear();
-		this.cmbArrivo.getItems().clear();
-		List<Collegamento> collegamenti=this.model.listAllCollegamenti();
-		this.cmbPartenza.getItems().addAll(collegamenti);
-		this.cmbArrivo.getItems().addAll(collegamenti);
 		this.HBoxSalva.setDisable(true);
-
     }
 
 
@@ -302,6 +290,17 @@ public class FXMLController {
     	}
 		return true;
 	}
+    
+	
+    public static boolean isInteger(String str) { 
+	  	  try {  
+	  	    Integer.parseInt(str);  
+	  	    return true;
+	  	  } catch(NumberFormatException e){  
+	  	    return false;  
+	  	  }  
+	  	}
+    
     
     private String stemp;
 
@@ -424,6 +423,8 @@ public class FXMLController {
     
     @FXML
     void doEliminaAutobus(ActionEvent event) {
+    	//nel caso di scelta di ricerca MINIMI CAMBI non mi interessa il numero massimo di autobus da prendere, quindi elimino 
+    	//quella parte dall'interfaccia
     	this.lista=this.VboxRicorsione.getChildren();
     	this.indexBoxAutobus=lista.indexOf(this.HBoxAutobus);
     	lista.remove(this.indexBoxAutobus);
@@ -444,7 +445,6 @@ public class FXMLController {
 
 	public void setModel(Model model, Stage stage, Scene scene) {
 		this.stage=stage;
-		
 		this.oldScene=scene;
 		this.model=model;
 		this.btnPercorso.setDisable(true);
@@ -455,15 +455,5 @@ public class FXMLController {
     	this.dtf = DateTimeFormatter.ofPattern("HH:mm");
 
 	}
-	
-	
-    public static boolean isInteger(String str) { 
-	  	  try {  
-	  	    Integer.parseInt(str);  
-	  	    return true;
-	  	  } catch(NumberFormatException e){  
-	  	    return false;  
-	  	  }  
-	  	}
 
 }

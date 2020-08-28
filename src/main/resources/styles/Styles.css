@@ -13,13 +13,11 @@
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 1, 0.0 , 0 , 3 );
 }
 
-.button:after {
-  content: '>>';
-  position: absolute;
-  opacity: 0;
-  top: 0;
-  right: -20px;
-  transition: 0.5s;
+.button:pressed {
+    -fx-background-color: 
+    	#c3c4c4,
+    	linear-gradient(#b5b5b5 50%, white 100%),
+        radial-gradient(center 50% -40%, radius 200%, #e6e6e6 45%, rgba(230,230,230,0) 50%);
 }
 
 
@@ -34,6 +32,49 @@
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 3, 0.0 , 0 , 1 );
 }
 
+.combo-box:hover{
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 1, 0.0 , 0 , 3 );
+}
+
+.combo-box:pressed {
+    -fx-background-color: 
+    	#c3c4c4,
+    	linear-gradient(#b5b5b5 50%, white 100%),
+        radial-gradient(center 50% -40%, radius 200%, #e6e6e6 45%, rgba(230,230,230,0) 50%);
+}
+
+.text-field {
+    -fx-background-radius: 30;
+}
+
+.text-field:focused {
+    -fx-faint-focus-color: transparent;
+    -fx-focus-color:blue;
+}
+
+#HBoxStagione {
+	-fx-background-radius: 30;
+	-fx-border-color: #5482f7 ;
+	-fx-border-radius: 30;
+	-fx-border-width: 2;
+	
+}
+
+#HBoxSettimana {
+	-fx-background-radius: 30;
+	-fx-border-color: #5482f7 ;
+	-fx-border-radius: 30;
+	-fx-border-width: 2;
+	
+}
+
+
+
+.radio-button:selected .radio .dot{
+    -fx-background-color: #5482f7;
+    -fx-background-insets: 0;
+}
+
 
 #VboxGrafo {
    -fx-background-color: LightSkyBlue;
@@ -46,4 +87,35 @@
 
 #BorderPaneScena2 {
 	-fx-background-color: LightSkyBlue;
+}
+
+.combo-box-popup .list-view
+ {
+   
+   -fx-background-radius: 15;
+   -fx-border-color: #5482f7 ;
+	-fx-border-radius: 12;
+	-fx-border-width: 2;
+ }
+.combo-box-popup .list-view .list-cell
+ {
+-fx-background-color: #ececec;
+-fx-text-fill: black;
+-fx-background-color: transparent;
+ }
+ 
+ .scroll-bar
+{
+  -fx-background-color: transparent;
+  -fx-stroke-width: 1;
+  -fx-stroke: -c-dark-glass;
+  -fx-arc-width: 16;
+  -fx-arc-height: 16;
+    -fx-pref-height: 9;
+    -fx-padding: 0 7 0 0;
+}
+
+.increment-button ,
+.decrement-button {
+    -fx-background-color :transparent;
 }

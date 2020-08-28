@@ -26,9 +26,10 @@ import javafx.collections.ObservableList;
 
 public class TestModel {
 
-	public static void main(String[] args) {
-		
-		
+	public static void main(String[] args) throws EccezioneLoop {
+		boolean okay=false;
+
+
 		System.out.println(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
 		
 		}
