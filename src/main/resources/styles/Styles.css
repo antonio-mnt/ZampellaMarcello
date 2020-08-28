@@ -109,11 +109,13 @@
  }
  
 .combo-box .combo-box-popup .list-cell:hover {
+-fx-background-radius: 15;
     -fx-text-fill: white ;
     -fx-background-color: #5482f7 ;
 }
 
 .combo-box .combo-box-popup .list-cell:selected {
+-fx-background-radius: 15;
     -fx-text-fill: white ;
     -fx-background-color: blue ;
 }

@@ -22,7 +22,6 @@ public class Model {
 	private int numeroMassimo;
 	private LocalDateTime orarioIndicato; //questo orario, a seconda dei casi, puo' indicare l'orario di partenza o l'orario di arrivo
 	private int tempoMinimo;
-	private ArrayList<Collegamento> miglioreSequenza;
 	private ArrayList<Arco> miglioreSequenzaArchi;
 	private LocalDateTime miglioreOrario;
 	private int miglioreCambiAutobus;
@@ -101,7 +100,6 @@ public class Model {
 				} else {
 					//passo ad una corsa successiva, quindi resetto il giorno.
 					giornoAttuale=LocalDate.ofYearDay(1998, 1);
-					//nuovaCorsa=true;
 				}
 			}
 			return grafo;
@@ -142,8 +140,8 @@ public class Model {
     	}
     	
     	
-		this.miglioreCambiAutobus=10; //limite che vale sia per sceltaRicerca tempo minimo che per cambi minimi. Specialmente per la seconda e' importante non avere un numero troppo alto per non 
-		//rendere la ricorsione eccessivamente lunga
+		this.miglioreCambiAutobus=9; //limite che vale sia per sceltaRicerca tempo minimo che per cambi minimi. Specialmente per la seconda e' importante non avere un numero troppo alto per non 
+		//rendere la ricorsione eccessivamente lunga, considerando che e' altamente improbabile dover utilizzare un numero molto alto di autobus per spostarsi
 		if(scelta.equals("PARTENZA")) {
 			parziale.add(partenza);
 			Set<Arco> successivi = nuoviArchiPartenza(partenza,this.orarioIndicato,parziale,parzialeArchi);
@@ -176,7 +174,6 @@ public class Model {
 					//questa e' la prima condizione, se non e' vera questa non considero ne' cambi ne' tempo effettivo
 					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus || tempoEffettivo<this.tempoEffettivoMinimo) {
 						this.tempoMinimo=tempoReale;
-						this.miglioreSequenza=new ArrayList<Collegamento>(parziale);
 						this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
 						this.miglioreOrario=orarioArrivo;
 						this.miglioreCambiAutobus=cambiAutobus;
@@ -189,7 +186,6 @@ public class Model {
 					//questa e' la prima condizione, se non e' vera questa non considero ne' tempo reale ne' tempo effettivo
 					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus || tempoEffettivo<this.tempoEffettivoMinimo) {
 						this.tempoMinimo=tempoReale;
-						this.miglioreSequenza=new ArrayList<Collegamento>(parziale);
 						this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
 						this.miglioreOrario=orarioArrivo;
 						this.miglioreCambiAutobus=cambiAutobus;
@@ -211,15 +207,10 @@ public class Model {
 				int tempLimiteAutobus;
 				if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
 					tempLimiteAutobus=this.numeroMassimo;
-					if(minutiPassati>this.tempoMinimo) {
-						okay=false;
-					}
 				} else {
 					tempLimiteAutobus=this.miglioreCambiAutobus;
-					if(cambiAutobus>=this.miglioreCambiAutobus && minutiPassati>this.tempoMinimo)
-						okay=false;
 				}
-				if(okay && !arcoSuccessivo.getCorsa().equals(corsaAttuale)) {
+				if(!arcoSuccessivo.getCorsa().equals(corsaAttuale)) {
 					//cambio autobus
 					if(cambiAutobus+1<=tempLimiteAutobus) {
 						nuovaCorsa=arcoSuccessivo.getCorsa();
@@ -228,6 +219,19 @@ public class Model {
 						okay=false;
 					}
 				}
+				if(okay) {
+					if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
+						if(minutiPassati>this.tempoMinimo) {
+							okay=false;
+						}
+					} else {
+						if(nuovoCambiAutobus==this.miglioreCambiAutobus && minutiPassati>this.tempoMinimo)
+							//la doppia condizione e' data dal fatto che non puo' il numero degli autobus esssere maggiore, se e' minore non guardo il tempo
+							// perche' do priorita' ai cambi, se e' uguale vedo il tempo
+							okay=false;
+					}
+				}
+				
 				if(okay) {
 					Collegamento colSuccessivo=grafo.getEdgeTarget(arcoSuccessivo);
 					parziale.add(colSuccessivo);
@@ -331,7 +335,6 @@ public class Model {
 				if(tempoReale<=this.tempoMinimo) {
 					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus || tempoEffettivo<this.tempoEffettivoMinimo) {
 						this.tempoMinimo=tempoReale;
-						this.miglioreSequenza=new ArrayList<Collegamento>(parziale);
 						this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
 						this.miglioreOrario=orarioPartenza;
 						this.miglioreCambiAutobus=cambiAutobus;
@@ -343,7 +346,6 @@ public class Model {
 				if(cambiAutobus<=this.miglioreCambiAutobus) {
 					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus || tempoEffettivo<this.tempoEffettivoMinimo) {
 						this.tempoMinimo=tempoReale;
-						this.miglioreSequenza=new ArrayList<Collegamento>(parziale);
 						this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
 						this.miglioreOrario=orarioPartenza;
 						this.miglioreCambiAutobus=cambiAutobus;
@@ -358,48 +360,47 @@ public class Model {
 			Corsa nuovaCorsa=corsaAttuale;
 			int nuovoCambiAutobus=cambiAutobus;
 			boolean okay;
-			//TODO ha senso?
-			if(!parziale.contains(grafo.getEdgeSource(arcoPrecedente))) {
-					okay = true;
-					LocalDateTime orarioAttuale=arcoPrecedente.getOrarioPartenza();
-					//Sto facendo il processo inverso, quindi il mio orario attuale e' l'orario di partenza dell'arco considerato
-					int minutiPassati=(int) Duration.between(orarioAttuale, this.orarioIndicato).toMinutes();
-					int tempLimiteAutobus;
-					if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
-						tempLimiteAutobus=this.numeroMassimo;
-						if(minutiPassati>this.tempoMinimo) {
-							okay=false;
-						}
-					} else {
-						tempLimiteAutobus=this.miglioreCambiAutobus;
-						//TODO guardare meglio questo caso
-						if(cambiAutobus>=this.miglioreCambiAutobus && minutiPassati>this.tempoMinimo)
-							okay=false;
-					}
-					if(okay && !arcoPrecedente.getCorsa().equals(corsaAttuale)) {
-						//cambio autobus
-						if(cambiAutobus+1<=tempLimiteAutobus) {
-							nuovaCorsa=arcoPrecedente.getCorsa();
-							nuovoCambiAutobus++;
-						} else {
-							okay=false;
-						}
-					}
-					
-					if(okay) {
-						Collegamento colPrecedente=grafo.getEdgeSource(arcoPrecedente);
-						parziale.add(colPrecedente);
-						parzialeArchi.add(arcoPrecedente);
-						espandiArrivo(parziale,parzialeArchi, colPrecedente,this.nuoviArchiArrivo(colPrecedente,orarioAttuale,parziale,parzialeArchi),nuovaCorsa,nuovoCambiAutobus,arrivo);
-						parziale.remove(parziale.indexOf(colPrecedente));
-						parzialeArchi.remove(arcoPrecedente);
-					}
-					
-					
-				}
-				
+			okay = true;
+			LocalDateTime orarioAttuale=arcoPrecedente.getOrarioPartenza();
+			//Sto facendo il processo inverso, quindi il mio orario attuale e' l'orario di partenza dell'arco considerato
+			int minutiPassati=(int) Duration.between(orarioAttuale, this.orarioIndicato).toMinutes();
+			int tempLimiteAutobus;
+			if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
+				tempLimiteAutobus=this.numeroMassimo;
+			} else {
+				tempLimiteAutobus=this.miglioreCambiAutobus;
 			}
+			if(!arcoPrecedente.getCorsa().equals(corsaAttuale)) {
+				//cambio autobus
+				if(cambiAutobus+1<=tempLimiteAutobus) {
+					nuovaCorsa=arcoPrecedente.getCorsa();
+					nuovoCambiAutobus++;
+				} else {
+					okay=false;
+				}
+			}
+			if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
+				if(minutiPassati>this.tempoMinimo) {
+					okay=false;
+				}
+			} else {
+				if(cambiAutobus==this.miglioreCambiAutobus && minutiPassati>this.tempoMinimo)
+					okay=false;
+					//la doppia condizione e' data dal fatto che non puo' il numero degli autobus esssere maggiore, se e' minore non guardo il tempo
+					// perche' do priorita' ai cambi, se e' uguale vedo il tempo
+			}
+			
+			
+			if(okay) {
+				Collegamento colPrecedente=grafo.getEdgeSource(arcoPrecedente);
+				parziale.add(colPrecedente);
+				parzialeArchi.add(arcoPrecedente);
+				espandiArrivo(parziale,parzialeArchi, colPrecedente,this.nuoviArchiArrivo(colPrecedente,orarioAttuale,parziale,parzialeArchi),nuovaCorsa,nuovoCambiAutobus,arrivo);
+				parziale.remove(parziale.indexOf(colPrecedente));
+				parzialeArchi.remove(arcoPrecedente);
+			}			
 		}
+	}
 	
 	
 	/**

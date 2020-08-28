@@ -41,7 +41,7 @@ public class Corsa {
 	}
 	@Override
 	public String toString() {
-		return identificativo+" (della linea: "+linea+")   ID "+this.id;
+		return identificativo+" (della linea: "+linea+")";
 	}
 	@Override
 	public int hashCode() {

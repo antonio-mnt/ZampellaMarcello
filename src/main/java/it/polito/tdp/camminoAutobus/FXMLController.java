@@ -133,6 +133,10 @@ public class FXMLController {
     private String stemp;
 	private int indexBoxAutobus;
 	private ObservableList<Node> lista;
+	private Model model;
+	private Stage stage;
+	private Scene oldScene;
+	private DateTimeFormatter dtf;
 	
     @FXML
     void doInserisciOrarioAttuale(ActionEvent event) {
@@ -195,7 +199,9 @@ public class FXMLController {
     	this.txtResult.setText("Inizio ricerca Percorso... \n");
 		this.sequenza=this.model.cercaPercorso(partenza,arrivo, ltorario, sceltaOrario,this.numeroMassimo,this.sceltaRicerca);
     	if(sequenza==null || sequenza.size()==0) {
-    		this.txtResult.appendText("ATTENZIONE: non e' stato trovato alcun percorso possibile. Prova ad aumentare il numero di cambi possibili"); 
+    		this.txtResult.appendText("ATTENZIONE: non e' stato trovato alcun percorso possibile."); 
+    		if(sceltaRicerca.equals("TEMPO MINIMO"))
+    			this.txtResult.appendText(" Prova ad aumentare il numero di cambi possibili");
     		this.btnDettagli.setDisable(true);
     		return;
     	} else {
@@ -206,7 +212,7 @@ public class FXMLController {
     	}
     	this.arcoPartenza=sequenza.get(0);
     	this.oraPartenza=arcoPartenza.getOrarioPartenza();
-    	this.txtResult.appendText("Prendi il bus "+arcoPartenza.getCorsa().getIdentificativo()+" che parte alle ore "+this.oraPartenza.toLocalTime().format(dtf)+"\n");
+    	this.txtResult.appendText("Prendi il bus "+arcoPartenza.getCorsa()+" che parte alle ore "+this.oraPartenza.toLocalTime().format(dtf)+"\n");
     	for(int k=0;k+1<sequenza.size();k++) {
     		Arco arco=sequenza.get(k);
     		Corsa nuovaCorsa=sequenza.get(k+1).getCorsa();
@@ -281,7 +287,7 @@ public class FXMLController {
 	    		this.txtResult.setText("INSERISCI IL NUMERO MASSIMO DI AUTOBUS!");
 	    		return false;
 	    	}
-	    	if(!this.isInteger(stemp)) {
+	    	if(!isInteger(stemp)) {
 	    		this.txtResult.setStyle("-fx-text-inner-color: red;");
 	    		this.txtResult.setText("IL VALORE MASSIMO DI AUTOBUS DEVE ESSERE NUMERICO INTERO!");
 	    		return false;
@@ -397,7 +403,7 @@ public class FXMLController {
 			new FileReader(percorso);
 			percorsoEsistente=true;
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			
 		}
         if(percorsoEsistente) {
         	this.erroreSalva.setVisible(true);
@@ -435,14 +441,6 @@ public class FXMLController {
     void doAggiungiAutobus(ActionEvent event) {
     	this.lista.add(this.indexBoxAutobus,this.HBoxAutobus);
     }
-    
-	private Model model;
-
-	private Stage stage;
-
-	private Scene oldScene;
-
-	private DateTimeFormatter dtf;
 
 	public void setModel(Model model, Stage stage, Scene scene) {
 		this.stage=stage;

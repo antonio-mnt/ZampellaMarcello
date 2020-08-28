@@ -1,7 +1,6 @@
 package it.polito.tdp.camminoAutobus.model;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 

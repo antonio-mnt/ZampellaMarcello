@@ -12,11 +12,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="558.0" prefWidth="614.0" stylesheets="@../styles/Styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.camminoAutobus.FXMLController">
+<BorderPane prefHeight="554.0" prefWidth="614.0" stylesheets="@../styles/Styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.tdp.camminoAutobus.FXMLController">
    <center>
       <VBox minHeight="10.0" prefHeight="310.0" prefWidth="614.0" BorderPane.alignment="CENTER">
          <children>
-            <VBox fx:id="VboxGrafo" prefHeight="117.0" prefWidth="614.0">
+            <VBox fx:id="VboxGrafo" prefHeight="129.0" prefWidth="614.0">
                <children>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
@@ -34,12 +34,12 @@
                               <ToggleGroup fx:id="orario" />
                            </toggleGroup>
                            <HBox.margin>
-                              <Insets left="10.0" />
+                              <Insets left="10.0" top="2.0" />
                            </HBox.margin>
                         </RadioButton>
                         <RadioButton fx:id="radioArrivo" mnemonicParsing="false" text="ARRIVO" toggleGroup="$orario">
                            <HBox.margin>
-                              <Insets left="4.0" />
+                              <Insets left="4.0" top="2.0" />
                            </HBox.margin></RadioButton>
                      </children>
                      <VBox.margin>
@@ -52,7 +52,7 @@
                            <HBox.margin>
                               <Insets top="3.0" />
                            </HBox.margin></Label>
-                        <HBox fx:id="HBoxStagione" prefHeight="23.0" prefWidth="155.0">
+                        <HBox fx:id="HBoxStagione" prefHeight="16.0" prefWidth="155.0">
                            <children>
                               <RadioButton mnemonicParsing="false" selected="true" text="ESTIVO">
                                  <toggleGroup>
@@ -62,7 +62,7 @@
                               <RadioButton mnemonicParsing="false" text="INVERNALE" toggleGroup="$stagione" />
                            </children>
                            <HBox.margin>
-                              <Insets bottom="15.0" left="8.0" />
+                              <Insets bottom="20.0" left="8.0" />
                            </HBox.margin>
                            <padding>
                               <Insets left="4.0" />
@@ -81,7 +81,7 @@
                               <RadioButton mnemonicParsing="false" selected="true" text="FERIALE" toggleGroup="$settimana" />
                            </children>
                            <HBox.margin>
-                              <Insets bottom="15.0" left="50.0" />
+                              <Insets bottom="20.0" left="50.0" />
                            </HBox.margin>
                         </HBox>
                      </children>
@@ -95,7 +95,7 @@
                      </VBox.margin></Button>
                </children>
             </VBox>
-            <VBox fx:id="VboxRicorsione" prefHeight="203.0" prefWidth="614.0">
+            <VBox fx:id="VboxRicorsione" prefHeight="186.0" prefWidth="614.0">
                <children>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
@@ -133,24 +133,20 @@
                   </HBox>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <Label text="METODO DI RICERCA" />
-                        <HBox prefHeight="100.0" prefWidth="200.0">
-                           <children>
-                              <RadioButton mnemonicParsing="false" onAction="#doAggiungiAutobus" selected="true" text="TEMPO MINIMO">
-                                 <toggleGroup>
-                                    <ToggleGroup fx:id="ricerca" />
-                                 </toggleGroup>
-                                 <HBox.margin>
-                                    <Insets left="8.0" />
-                                 </HBox.margin>
-                              </RadioButton>
-                              <RadioButton mnemonicParsing="false" onAction="#doEliminaAutobus" text="CAMBI MINIMI" toggleGroup="$ricerca">
-                                 <HBox.margin>
-                                    <Insets left="5.0" />
-                                 </HBox.margin>
-                              </RadioButton>
-                           </children>
-                        </HBox>
+                        <Label text="METODO DI RICERCA:" />
+                        <RadioButton minWidth="115.0" mnemonicParsing="false" onAction="#doAggiungiAutobus" prefHeight="17.0" prefWidth="115.0" selected="true" text="TEMPO MINIMO">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                           <toggleGroup>
+                              <ToggleGroup fx:id="ricerca" />
+                           </toggleGroup>
+                        </RadioButton>
+                        <RadioButton mnemonicParsing="false" onAction="#doEliminaAutobus" prefHeight="17.0" prefWidth="109.0" text="CAMBI MINIMI" toggleGroup="$ricerca">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </RadioButton>
                      </children>
                      <VBox.margin>
                         <Insets left="8.0" />
@@ -158,8 +154,14 @@
                   </HBox>
                   <HBox fx:id="HBoxAutobus" prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <Label text="N° MASSIMO AUTOBUS" />
-                        <TextField fx:id="txtNumeroMassimo" promptText="inserisci..." />
+                        <Label text="N° MASSIMO AUTOBUS:">
+                           <HBox.margin>
+                              <Insets top="5.0" />
+                           </HBox.margin></Label>
+                        <TextField fx:id="txtNumeroMassimo" promptText="inserisci...">
+                           <HBox.margin>
+                              <Insets left="8.0" />
+                           </HBox.margin></TextField>
                      </children>
                      <VBox.margin>
                         <Insets left="8.0" />

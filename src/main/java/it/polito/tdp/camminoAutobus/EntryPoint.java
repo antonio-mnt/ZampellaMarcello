@@ -24,6 +24,7 @@ public class EntryPoint extends Application {
         
         stage.setTitle("Prova Finale Zampella Marcello s246314");
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
     }
 

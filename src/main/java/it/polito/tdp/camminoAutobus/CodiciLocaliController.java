@@ -6,12 +6,10 @@ import it.polito.tdp.camminoAutobus.model.Collegamento;
 import it.polito.tdp.camminoAutobus.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class CodiciLocaliController {
@@ -22,17 +20,17 @@ public class CodiciLocaliController {
 
     @FXML
     private TextField txtArrivo;
-
-	private Model model;
-	
-	@FXML
-	private TextArea txtResult;
-	
+    
     @FXML
     private ComboBox<Collegamento> cmbPartenza;
 	
     @FXML
     private ComboBox<Collegamento> cmbArrivo;
+	
+	@FXML
+	private TextArea txtResult;
+
+	private Model model;
 
 	private Stage stage;
 
@@ -41,10 +39,6 @@ public class CodiciLocaliController {
 	private ComboBox<Collegamento> modificaPartenza;
 
 	private ComboBox<Collegamento> modificaArrivo;
-	
-
-    @FXML
-    private BorderPane BorderPaneScena2;
 
     @FXML
     void doCercaArrivo(ActionEvent event) {
@@ -63,8 +57,6 @@ public class CodiciLocaliController {
     	this.cmbArrivo.setDisable(false);
     	this.cmbArrivo.getItems().addAll(collegamenti);
     	this.txtResult.clear();
-    	
-
     }
 
     @FXML
@@ -84,7 +76,6 @@ public class CodiciLocaliController {
 		this.cmbPartenza.setDisable(false);
     	this.cmbPartenza.getItems().addAll(collegamenti);
     	this.txtResult.clear();
-
     }
     
     @FXML
@@ -97,7 +88,6 @@ public class CodiciLocaliController {
     	}
     	stage.setScene(oldScene);
 		stage.show();
-    
     }
 
 	public void setModel(Model model, Stage stage, Scene oldScene, ComboBox<Collegamento> modificaPartenza, ComboBox<Collegamento> modificaArrivo) {
@@ -107,9 +97,7 @@ public class CodiciLocaliController {
 		this.modificaPartenza=modificaPartenza;
 		this.modificaArrivo=modificaArrivo;
 		this.cmbArrivo.setDisable(true);
-		this.cmbPartenza.setDisable(true);
-		
-		
+		this.cmbPartenza.setDisable(true);	
 	}
 
 }
