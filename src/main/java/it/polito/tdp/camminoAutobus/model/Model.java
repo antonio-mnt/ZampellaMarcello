@@ -8,13 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
-
-import org.jgrapht.GraphPath;
 import org.jgrapht.Graphs;
-import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.DirectedWeightedMultigraph;
 
 import it.polito.tdp.camminoAutobus.db.CorsaDao;
@@ -134,8 +129,8 @@ public class Model {
 	public ArrayList<Arco> cercaPercorso(Collegamento partenza, Collegamento arrivo, LocalTime orario, String scelta,
 			int numeroMassimo, String sceltaRicerca) {
 		this.miglioreSequenzaArchi=null;
-		ArrayList<Collegamento> parziale=new ArrayList();
-		ArrayList<Arco> parzialeArchi=new ArrayList();
+		ArrayList<Collegamento> parziale=new ArrayList<Collegamento>();
+		ArrayList<Arco> parzialeArchi=new ArrayList<Arco>();
 		this.tempoMinimo=this.oreDistanza*60+1; //tempo minimo massimo e' dato dal tempo massimo deciso per il grafo
 		this.tempoEffettivoMinimo=this.tempoMinimo;
 		int cambiAutobus=0;
@@ -170,6 +165,7 @@ public class Model {
 			int cambiAutobus, Collegamento arrivo) {
 		
 		if(codiceLocaleAttuale.equals(arrivo)) {
+			//condizione di terminazione
 			Arco ultimoArco=parzialeArchi.get(parzialeArchi.size()-1);
 			LocalDateTime orarioArrivo=ultimoArco.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(ultimoArco));
 			LocalDateTime partenzaEffettiva=parzialeArchi.get(0).getOrarioPartenza();
@@ -197,6 +193,7 @@ public class Model {
 						this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
 						this.miglioreOrario=orarioArrivo;
 						this.miglioreCambiAutobus=cambiAutobus;
+						this.tempoEffettivoMinimo=tempoEffettivo;
 						return;
 					}
 				}
@@ -207,41 +204,38 @@ public class Model {
 			Corsa nuovaCorsa=corsaAttuale;
 			int nuovoCambiAutobus=cambiAutobus;
 			boolean okay=true;
-			if(!parziale.contains(grafo.getEdgeTarget(arcoSuccessivo))) {
-					LocalDateTime orarioAttuale=arcoSuccessivo.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoSuccessivo));
-					int minutiPassati=(int) Duration.between(this.orarioIndicato, orarioAttuale).toMinutes();
-					int tempLimiteAutobus;
-					if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
-						tempLimiteAutobus=this.numeroMassimo;
-						if(minutiPassati>this.tempoMinimo) {
-							okay=false;
-						}
-					} else {
-						tempLimiteAutobus=this.miglioreCambiAutobus;
-						if(cambiAutobus>=this.miglioreCambiAutobus && minutiPassati>this.tempoMinimo)
-							okay=false;
+			//Nella funzione di ricerca degli archi ho gia' inserito la condizione che non voglio archi che portino a nodi gia' considerati
+				LocalDateTime orarioAttuale=arcoSuccessivo.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arcoSuccessivo));
+				//il mio orario attuale e' l'orario di partenza per l'arco + il tempo necessario per il trasferimento (dato dal peso)
+				int minutiPassati=(int) Duration.between(this.orarioIndicato, orarioAttuale).toMinutes();
+				int tempLimiteAutobus;
+				if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
+					tempLimiteAutobus=this.numeroMassimo;
+					if(minutiPassati>this.tempoMinimo) {
+						okay=false;
 					}
-					
-					if(okay && !arcoSuccessivo.getCorsa().equals(corsaAttuale)) {
-						//cambio autobus
-						if(cambiAutobus+1<=tempLimiteAutobus) {
-							nuovaCorsa=arcoSuccessivo.getCorsa();
-							nuovoCambiAutobus++;
-						} else {
-							okay=false;
-						}
-					}
-					if(okay) {
-						Collegamento colSuccessivo=grafo.getEdgeTarget(arcoSuccessivo);
-						parziale.add(colSuccessivo);
-						parzialeArchi.add(arcoSuccessivo);
-						espandiPartenza(parziale,parzialeArchi, colSuccessivo,this.nuoviArchiPartenza(colSuccessivo,orarioAttuale,parziale,parzialeArchi),nuovaCorsa,nuovoCambiAutobus,arrivo);
-						parziale.remove(parziale.indexOf(colSuccessivo));
-						parzialeArchi.remove(arcoSuccessivo);
-					}
-					
+				} else {
+					tempLimiteAutobus=this.miglioreCambiAutobus;
+					if(cambiAutobus>=this.miglioreCambiAutobus && minutiPassati>this.tempoMinimo)
+						okay=false;
 				}
-				
+				if(okay && !arcoSuccessivo.getCorsa().equals(corsaAttuale)) {
+					//cambio autobus
+					if(cambiAutobus+1<=tempLimiteAutobus) {
+						nuovaCorsa=arcoSuccessivo.getCorsa();
+						nuovoCambiAutobus++;
+					} else {
+						okay=false;
+					}
+				}
+				if(okay) {
+					Collegamento colSuccessivo=grafo.getEdgeTarget(arcoSuccessivo);
+					parziale.add(colSuccessivo);
+					parzialeArchi.add(arcoSuccessivo);
+					espandiPartenza(parziale,parzialeArchi, colSuccessivo,this.nuoviArchiPartenza(colSuccessivo,orarioAttuale,parziale,parzialeArchi),nuovaCorsa,nuovoCambiAutobus,arrivo);
+					parziale.remove(parziale.indexOf(colSuccessivo));
+					parzialeArchi.remove(arcoSuccessivo);
+				}	
 			}
 		}
 
@@ -255,7 +249,7 @@ public class Model {
 	 * @return Set di archi interessanti
 	 */
 	private Set<Arco> nuoviArchiPartenza(Collegamento partenza, LocalDateTime orarioAttuale, ArrayList<Collegamento> parziale, ArrayList<Arco> parzialeArchi) {
-		ArrayList<Arco> successivi=new ArrayList(grafo.outgoingEdgesOf(partenza));
+		ArrayList<Arco> successivi=new ArrayList<Arco>(grafo.outgoingEdgesOf(partenza));
 		ArrayList<Arco> eliminare=new ArrayList<Arco>();
 		for(Arco arco:successivi) {
 			if(parziale.contains(this.grafo.getEdgeTarget(arco))) {
@@ -267,6 +261,8 @@ public class Model {
 			successivi.removeAll(eliminare);
 		}
 		HashMap<String,Arco> considerati=new HashMap<String,Arco>();
+		//vado a considerare solo 1 arco per identificativo il cui orario di partenza (orario di partenza+peso) e' NON PRIMA e il piu'
+		//vicino possibile al mio orario attuale
 		for(Arco arco:successivi) {
 			if(!arco.getOrarioPartenza().isBefore(orarioAttuale) ) {
 				String identificativo=arco.getCorsa().getIdentificativo();
@@ -328,25 +324,30 @@ public class Model {
 			Arco primoArco=parzialeArchi.get(parzialeArchi.size()-1);
 			LocalDateTime orarioPartenza=primoArco.getOrarioPartenza();
 			int tempoReale=(int) Duration.between(orarioPartenza,this.orarioIndicato).toMinutes();
+			Arco ultimoArco=parzialeArchi.get(0);
+			LocalDateTime orarioArrivoEffettivo=ultimoArco.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(ultimoArco));
+			int tempoEffettivo=(int) Duration.between(orarioPartenza, orarioArrivoEffettivo).toMinutes();
 			if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
 				if(tempoReale<=this.tempoMinimo) {
-					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus) {
+					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus || tempoEffettivo<this.tempoEffettivoMinimo) {
 						this.tempoMinimo=tempoReale;
 						this.miglioreSequenza=new ArrayList<Collegamento>(parziale);
 						this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
 						this.miglioreOrario=orarioPartenza;
 						this.miglioreCambiAutobus=cambiAutobus;
+						this.tempoEffettivoMinimo=tempoEffettivo;
 						return;
 					}
 				}
 			}  else {
 				if(cambiAutobus<=this.miglioreCambiAutobus) {
-					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus) {
+					if(tempoReale<this.tempoMinimo || cambiAutobus<this.miglioreCambiAutobus || tempoEffettivo<this.tempoEffettivoMinimo) {
 						this.tempoMinimo=tempoReale;
 						this.miglioreSequenza=new ArrayList<Collegamento>(parziale);
 						this.miglioreSequenzaArchi=new ArrayList<Arco>(parzialeArchi);
 						this.miglioreOrario=orarioPartenza;
 						this.miglioreCambiAutobus=cambiAutobus;
+						this.tempoEffettivoMinimo=tempoEffettivo;
 						return;
 					}
 				}
@@ -357,9 +358,11 @@ public class Model {
 			Corsa nuovaCorsa=corsaAttuale;
 			int nuovoCambiAutobus=cambiAutobus;
 			boolean okay;
+			//TODO ha senso?
 			if(!parziale.contains(grafo.getEdgeSource(arcoPrecedente))) {
 					okay = true;
 					LocalDateTime orarioAttuale=arcoPrecedente.getOrarioPartenza();
+					//Sto facendo il processo inverso, quindi il mio orario attuale e' l'orario di partenza dell'arco considerato
 					int minutiPassati=(int) Duration.between(orarioAttuale, this.orarioIndicato).toMinutes();
 					int tempLimiteAutobus;
 					if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
@@ -369,6 +372,7 @@ public class Model {
 						}
 					} else {
 						tempLimiteAutobus=this.miglioreCambiAutobus;
+						//TODO guardare meglio questo caso
 						if(cambiAutobus>=this.miglioreCambiAutobus && minutiPassati>this.tempoMinimo)
 							okay=false;
 					}
@@ -409,7 +413,7 @@ public class Model {
 	 * @return
 	 */
 	private Set<Arco> nuoviArchiArrivo(Collegamento arrivo, LocalDateTime orarioAttuale, ArrayList<Collegamento> parziale, ArrayList<Arco> parzialeArchi) {
-		ArrayList<Arco> precedenti=new ArrayList(grafo.incomingEdgesOf(arrivo));
+		ArrayList<Arco> precedenti=new ArrayList<Arco>(grafo.incomingEdgesOf(arrivo));
 		ArrayList<Arco> eliminare=new ArrayList<Arco>();
 		for(Arco arco:precedenti) {
 			if(parziale.contains(this.grafo.getEdgeSource(arco))) {
@@ -421,8 +425,10 @@ public class Model {
 			precedenti.removeAll(eliminare);
 		}
 		HashMap<String,Arco> considerati=new HashMap<String,Arco>();
+		//vado a considerare solo 1 arco per identificativo il cui orario di arrivo (orario di partenza+peso) e' NON DOPO e il piu'
+		//vicino possibile al mio orario attuale
 		for(Arco arco:precedenti) {
-			if(!arco.getOrarioPartenza().isAfter(orarioAttuale) ) {
+			if(!arco.getOrarioPartenza().plusMinutes((long) grafo.getEdgeWeight(arco)).isAfter(orarioAttuale) ) {
 				String identificativo=arco.getCorsa().getIdentificativo();
 				if(considerati.containsKey(identificativo)) {
 					Arco temp=considerati.get(identificativo);

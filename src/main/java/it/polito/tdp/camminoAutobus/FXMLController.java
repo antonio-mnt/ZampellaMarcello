@@ -351,16 +351,19 @@ public class FXMLController {
 		int minutiTotali;
 		int hours;
 		int minutes;
+		this.txtResult.appendText("Tempo da orario indicato: ");
 		if(this.sceltaOrario.equals("PARTENZA")) {
-			this.txtResult.appendText("Tempo da orario indicato: ");
 			minutiTotali=(int) Duration.between(LocalDateTime.of(LocalDate.ofYearDay(1998, 1),this.ltorario), this.oraFine).toMinutes();
+		} else {
+			minutiTotali=(int) Duration.between(this.oraPartenza,LocalDateTime.of(LocalDate.ofYearDay(1998, 2),this.ltorario)).toMinutes();
+		}
 			hours = minutiTotali / 60; 
 			minutes = minutiTotali % 60;
 			if(hours==0)
 				this.txtResult.appendText(minutes+" minuti\n");
 			else
 				this.txtResult.appendText(hours+" ore e "+minutes+" minuti\n");
-		}
+		
 		this.txtResult.appendText("Tempo di viaggio effettivo: ");
 		minutiTotali=(int) Duration.between(this.oraPartenza, this.oraFine).toMinutes();
 		hours = minutiTotali / 60; //since both are ints, you get an int
