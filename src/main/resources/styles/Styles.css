@@ -68,6 +68,10 @@
 	
 }
 
+#HBoxSalva {
+	-fx-background-color: LightSkyBlue;
+}
+
 
 
 .radio-button:selected .radio .dot{
@@ -103,6 +107,16 @@
 -fx-text-fill: black;
 -fx-background-color: transparent;
  }
+ 
+.combo-box .combo-box-popup .list-cell:hover {
+    -fx-text-fill: white ;
+    -fx-background-color: #5482f7 ;
+}
+
+.combo-box .combo-box-popup .list-cell:selected {
+    -fx-text-fill: white ;
+    -fx-background-color: blue ;
+}
  
  .scroll-bar
 {

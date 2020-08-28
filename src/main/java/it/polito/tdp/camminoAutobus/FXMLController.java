@@ -130,6 +130,9 @@ public class FXMLController {
 	private LocalDateTime oraPartenza;
 	private String sceltaSettimana;
 	private boolean stampato;
+    private String stemp;
+	private int indexBoxAutobus;
+	private ObservableList<Node> lista;
 	
     @FXML
     void doInserisciOrarioAttuale(ActionEvent event) {
@@ -170,6 +173,7 @@ public class FXMLController {
 		this.VboxRicorsione.setDisable(false);
 		this.txtNumeroMassimo.setDisable(false);
 		this.HBoxSalva.setDisable(true);
+		this.erroreSalva.setVisible(false);
     }
 
 
@@ -218,6 +222,7 @@ public class FXMLController {
     		this.txtResult.appendText("ATTENZIONE: il viaggio si svolge in 2 giorni differenti\n");
     	}
     	this.stampato=false;
+    	this.erroreSalva.setVisible(false);
     }
     
     
@@ -302,14 +307,6 @@ public class FXMLController {
 	  	}
     
     
-    private String stemp;
-
-	private int indexBoxAutobus;
-
-	private ObservableList<Node> lista;
-
-    
-    
     @FXML
     void doRicercaCodiciLocali(ActionEvent event) throws IOException {
 
@@ -380,6 +377,7 @@ public class FXMLController {
 
     @FXML
     void doSalva(ActionEvent event) {
+    	this.erroreSalva.setVisible(false);
     	JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
         jfc.setDialogTitle("Scegli la cartella in cui salvare il file:");
         jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
