@@ -138,8 +138,6 @@ public class Model {
     	if(this.sceltaRicerca.equals("TEMPO MINIMO")) {
     		this.numeroMassimo=numeroMassimo;
     	}
-    	
-    	
 		this.miglioreCambiAutobus=9; //limite che vale sia per sceltaRicerca tempo minimo che per cambi minimi. Specialmente per la seconda e' importante non avere un numero troppo alto per non 
 		//rendere la ricorsione eccessivamente lunga, considerando che e' altamente improbabile dover utilizzare un numero molto alto di autobus per spostarsi
 		if(scelta.equals("PARTENZA")) {
