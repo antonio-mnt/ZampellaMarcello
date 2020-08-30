@@ -11,4 +11,4 @@ Il peso del cammino può essere configurato, a discrezione dell'utente, sul temp
 <li>Aprire il progetto e lanciare la classe Main</li>
 
 
-Per scoprire una breve guida introduttiva, guarda il video al link: https://youtu.be/x3bLajvsfnk
+Per una breve guida introduttiva, guarda il video al link: https://youtu.be/x3bLajvsfnk
